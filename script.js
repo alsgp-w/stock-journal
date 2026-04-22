@@ -194,8 +194,8 @@ function buildTradePayload() {
   const profitInput = els.profit.value === "" ? null : Number(els.profit.value);
   const profitRateInput = els.profitRate.value === "" ? null : Number(els.profitRate.value);
 
-  if (!date || !stockName || !ticker || !quantity || !buyPrice) {
-    alert("거래일, 종목명, 티커, 수량, 매수 단가는 꼭 입력해주세요.");
+  if (!date || !stockName || !quantity || !buyPrice) {
+    alert("거래일, 종목명, 수량, 매수 단가는 꼭 입력해주세요.");
     return null;
   }
 
@@ -402,7 +402,7 @@ function renderSelectedDateDetail() {
         <article class="detail-trade-item">
           <div class="detail-topline">
             <div>
-              <div class="detail-name">${escapeHtml(log.stockName)} <span class="detail-sub">(${escapeHtml(log.ticker)})</span></div>
+              <div class="detail-name">${escapeHtml(log.stockName)}${log.ticker ? ` <span class="detail-sub">(${escapeHtml(log.ticker)})</span>` : ""}</div>
               <div class="detail-sub">${tradeTypeLabel(log.tradeType)} · ${escapeHtml(log.strategy)} · ${escapeHtml(log.tag || "-")}</div>
             </div>
             <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
@@ -467,7 +467,7 @@ function renderTradeTable() {
           <td>
             <div class="ticker-cell">
               <span class="ticker-name">${escapeHtml(log.stockName)}</span>
-              <span class="ticker-code">${escapeHtml(log.ticker)} · ${escapeHtml(log.market)}</span>
+              <span class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</span>
             </div>
           </td>
           <td><span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span></td>
@@ -583,9 +583,10 @@ function importLogs(event) {
       }
 
       const normalizedLogs = importedLogs
-        .filter((item) => item && item.date && item.stockName && item.ticker)
+        .filter((item) => item && item.date && item.stockName)
         .map((item) => ({
           ...item,
+          ticker: String(item.ticker || "").trim().toUpperCase(),
           id: Number(item.id) || Date.now() + Math.floor(Math.random() * 10000),
           quantity: Number(item.quantity) || 0,
           buyPrice: Number(item.buyPrice) || 0,
