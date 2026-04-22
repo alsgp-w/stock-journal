@@ -401,12 +401,18 @@ function updateCalendarSummary(monthLogs) {
     return;
   }
 
-  const best = entries.reduce((max, entry) => (entry[1] > max[1] ? entry : max), entries[0]);
-  const worst = entries.reduce((min, entry) => (entry[1] < min[1] ? entry : min), entries[0]);
+  const bestEntries = entries.filter(([, value]) => value > 0);
+  const worstEntries = entries.filter(([, value]) => value < 0);
+  const best = bestEntries.length
+    ? bestEntries.reduce((max, entry) => (entry[1] > max[1] ? entry : max), bestEntries[0])
+    : null;
+  const worst = worstEntries.length
+    ? worstEntries.reduce((min, entry) => (entry[1] < min[1] ? entry : min), worstEntries[0])
+    : null;
   const average = entries.reduce((sum, [, value]) => sum + value, 0) / entries.length;
 
-  els.bestDayValue.textContent = `${best[0].slice(8)}일 · ${formatMoney(best[1])}`;
-  els.worstDayValue.textContent = `${worst[0].slice(8)}일 · ${formatMoney(worst[1])}`;
+  els.bestDayValue.textContent = best ? `${best[0].slice(8)}일 · ${formatMoney(best[1])}` : "없음";
+  els.worstDayValue.textContent = worst ? `${worst[0].slice(8)}일 · ${formatMoney(worst[1])}` : "";
   els.avgDayValue.textContent = formatMoney(Math.round(average));
 }
 
@@ -449,8 +455,8 @@ function renderSelectedDateDetail() {
             <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
           </div>
           <div class="detail-sub">수량 ${Number(log.quantity).toLocaleString()}주 · 매수 ${formatMoney(log.buyPrice)} · 매도 ${formatMoney(log.sellPrice || 0)} · 수익률 ${formatPercent(log.profitRate)}</div>
-          <div class="detail-note">${escapeHtml(log.reason || "진입 근거가 아직 기록되지 않았습니다.")}</div>
-          <div class="detail-note">${escapeHtml(log.memo || "복기 메모가 아직 기록되지 않았습니다.")}</div>
+          ${log.reason ? `<div class="detail-note">${escapeHtml(log.reason)}</div>` : ""}
+          ${log.memo ? `<div class="detail-note">${escapeHtml(log.memo)}</div>` : ""}
         </article>
       `
     )
