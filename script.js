@@ -411,7 +411,7 @@ function updateCalendarSummary(monthLogs) {
     : null;
   const average = entries.reduce((sum, [, value]) => sum + value, 0) / entries.length;
 
-  els.bestDayValue.textContent = best ? `${best[0].slice(8)}일 · ${formatMoney(best[1])}` : "없음";
+  els.bestDayValue.textContent = best ? `${best[0].slice(8)}일 · ${formatMoney(best[1])}` : "";
   els.worstDayValue.textContent = worst ? `${worst[0].slice(8)}일 · ${formatMoney(worst[1])}` : "";
   els.avgDayValue.textContent = formatMoney(Math.round(average));
 }
@@ -455,8 +455,8 @@ function renderSelectedDateDetail() {
             <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
           </div>
           <div class="detail-sub">수량 ${Number(log.quantity).toLocaleString()}주 · 매수 ${formatMoney(log.buyPrice)} · 매도 ${formatMoney(log.sellPrice || 0)} · 수익률 ${formatPercent(log.profitRate)}</div>
-          ${log.reason ? `<div class="detail-note">${escapeHtml(log.reason)}</div>` : ""}
-          ${log.memo ? `<div class="detail-note">${escapeHtml(log.memo)}</div>` : ""}
+          ${log.reason ? `<div class="detail-note">${formatMultilineText(log.reason)}</div>` : ""}
+          ${log.memo ? `<div class="detail-note">${formatMultilineText(log.memo)}</div>` : ""}
         </article>
       `
     )
@@ -768,4 +768,8 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function formatMultilineText(value) {
+  return escapeHtml(value).replaceAll("\n", "<br>");
 }
