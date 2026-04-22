@@ -49,6 +49,33 @@
         </div>
       </header>
 
+      <section class="capital-panel glass-card">
+        <div class="capital-copy">
+          <p class="section-kicker">Capital Overview</p>
+          <h2>전체 시드 관리</h2>
+          <p class="capital-text">처음 시작한 시드를 입력해두면 누적 손익을 반영해 현재 총 시드를 자동으로 계산해줍니다.</p>
+        </div>
+
+        <div class="capital-stats">
+          <article class="capital-stat">
+            <span>초기 시드</span>
+            <strong id="startingCapitalValue">₩0</strong>
+          </article>
+          <article class="capital-stat">
+            <span>현재 총 시드</span>
+            <strong id="currentCapitalValue">₩0</strong>
+          </article>
+        </div>
+
+        <form id="capitalForm" class="capital-form">
+          <label>
+            <span>초기 시드 입력</span>
+            <input type="number" id="startingCapitalInput" min="0" step="1" placeholder="예: 3000000">
+          </label>
+          <button type="submit" class="ghost-button">시드 저장</button>
+        </form>
+      </section>
+
       <section class="summary-grid" id="summaryGrid">
         <article class="summary-card glass-card">
           <span class="summary-label">오늘 손익</span>

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "stockTradingJournalLogs";
+const SETTINGS_KEY = "stockTradingJournalSettings";
 
 const state = {
   logs: [],
@@ -6,7 +7,8 @@ const state = {
   currentMonth: new Date(),
   editingId: null,
   activeTag: "실적",
-  searchQuery: ""
+  searchQuery: "",
+  startingCapital: 0
 };
 
 const els = {};
@@ -17,11 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
   setToday();
   bindEvents();
   loadLogs();
+  loadSettings();
   render();
 });
 
 function cacheElements() {
   const ids = [
+    "capitalForm",
     "tradeForm",
     "tradeDate",
     "market",
@@ -78,6 +82,9 @@ function cacheElements() {
     "todayProfitValue",
     "monthProfitValue",
     "cumulativeRateValue",
+    "startingCapitalValue",
+    "currentCapitalValue",
+    "startingCapitalInput",
     "tagOptions"
   ];
 
@@ -92,6 +99,7 @@ function initializeWeekdays() {
 }
 
 function bindEvents() {
+  els.capitalForm.addEventListener("submit", handleCapitalSubmit);
   els.tradeForm.addEventListener("submit", handleSubmit);
   els.resetFormBtn.addEventListener("click", resetForm);
   els.prevMonthBtn.addEventListener("click", () => moveMonth(-1));
@@ -120,6 +128,13 @@ function bindEvents() {
       item.classList.toggle("active", item === chip);
     });
   });
+}
+
+function handleCapitalSubmit(event) {
+  event.preventDefault();
+  state.startingCapital = Number(els.startingCapitalInput.value) || 0;
+  persistSettings();
+  renderSummary();
 }
 
 function setToday() {
@@ -254,8 +269,30 @@ function loadLogs() {
   }
 }
 
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {};
+    state.startingCapital = Number(saved.startingCapital) || 0;
+    if (els.startingCapitalInput) {
+      els.startingCapitalInput.value = state.startingCapital ? String(state.startingCapital) : "";
+    }
+  } catch (error) {
+    console.error(error);
+    state.startingCapital = 0;
+  }
+}
+
 function persistLogs() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.logs));
+}
+
+function persistSettings() {
+  localStorage.setItem(
+    SETTINGS_KEY,
+    JSON.stringify({
+      startingCapital: state.startingCapital
+    })
+  );
 }
 
 function render() {
@@ -303,6 +340,10 @@ function renderSummary() {
   const cumulativeProfit = sumProfit(state.logs);
   const cumulativeRate = invested ? (cumulativeProfit / invested) * 100 : 0;
   els.cumulativeRateValue.textContent = `${cumulativeRate.toFixed(2)}%`;
+
+  const currentCapital = state.startingCapital + cumulativeProfit;
+  setMoneyText(els.startingCapitalValue, state.startingCapital);
+  setMoneyText(els.currentCapitalValue, currentCapital);
 }
 
 function renderCalendar() {
