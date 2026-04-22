@@ -100,13 +100,16 @@
       </section>
 
       <section class="workspace-grid">
-        <section class="form-card glass-card">
+        <section class="form-card glass-card" id="formCard">
           <div class="section-heading">
             <div>
               <p class="section-kicker">Trade Entry</p>
               <h2>주식 매매 기록</h2>
             </div>
-            <button id="resetFormBtn" class="ghost-button" type="button">입력 초기화</button>
+            <div class="form-tools">
+              <button id="mobileFormToggle" class="ghost-button mobile-only" type="button">기록 입력 열기</button>
+              <button id="resetFormBtn" class="ghost-button" type="button">입력 초기화</button>
+            </div>
           </div>
 
           <form id="tradeForm" class="trade-form">
@@ -373,6 +376,8 @@
               </tbody>
             </table>
           </div>
+
+          <div id="mobileTradeList" class="mobile-trade-list"></div>
         </section>
       </section>
     </main>

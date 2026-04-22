@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function cacheElements() {
   const ids = [
+    "formCard",
     "capitalForm",
     "tradeForm",
     "tradeDate",
@@ -75,6 +76,8 @@ function cacheElements() {
     "progressFill",
     "tradeTableBody",
     "searchInput",
+    "mobileFormToggle",
+    "mobileTradeList",
     "exportBtn",
     "importBtn",
     "importFileInput",
@@ -101,6 +104,7 @@ function initializeWeekdays() {
 function bindEvents() {
   els.capitalForm.addEventListener("submit", handleCapitalSubmit);
   els.tradeForm.addEventListener("submit", handleSubmit);
+  els.mobileFormToggle.addEventListener("click", toggleMobileForm);
   els.resetFormBtn.addEventListener("click", resetForm);
   els.prevMonthBtn.addEventListener("click", () => moveMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => moveMonth(1));
@@ -128,6 +132,12 @@ function bindEvents() {
       item.classList.toggle("active", item === chip);
     });
   });
+}
+
+function toggleMobileForm() {
+  els.formCard.classList.toggle("mobile-open");
+  const isOpen = els.formCard.classList.contains("mobile-open");
+  els.mobileFormToggle.textContent = isOpen ? "기록 입력 닫기" : "기록 입력 열기";
 }
 
 function handleCapitalSubmit(event) {
@@ -503,6 +513,7 @@ function renderTradeTable() {
         <td colspan="7" class="empty-row">검색 결과가 없어요.</td>
       </tr>
     `;
+    els.mobileTradeList.innerHTML = `<div class="empty-row">검색 결과가 없어요.</div>`;
     return;
   }
 
@@ -542,6 +553,48 @@ function renderTradeTable() {
       }
     });
   });
+
+  els.mobileTradeList.innerHTML = filtered
+    .map(
+      (log) => `
+        <article class="mobile-trade-card">
+          <div class="mobile-card-head">
+            <div>
+              <div class="ticker-name">${escapeHtml(log.stockName)}</div>
+              <div class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</div>
+            </div>
+            <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
+          </div>
+          <div class="mobile-card-meta">
+            <span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span>
+            <span class="pill">${escapeHtml(log.strategy)}</span>
+          </div>
+          <div class="mobile-card-grid">
+            <div><span>날짜</span><strong>${log.date}</strong></div>
+            <div><span>수익률</span><strong>${formatPercent(log.profitRate)}</strong></div>
+          </div>
+          <div class="mobile-card-foot">
+            <div class="detail-sub">${log.reason ? escapeHtml(log.reason).slice(0, 50) : "기록 메모 없음"}</div>
+            <div class="row-actions">
+              <button type="button" data-action="edit" data-id="${log.id}">수정</button>
+              <button type="button" data-action="delete" data-id="${log.id}">삭제</button>
+            </div>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+
+  els.mobileTradeList.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = Number(button.dataset.id);
+      if (button.dataset.action === "edit") {
+        startEdit(id);
+      } else {
+        deleteLog(id);
+      }
+    });
+  });
 }
 
 function startEdit(id) {
@@ -571,6 +624,10 @@ function startEdit(id) {
     chip.classList.toggle("active", chip.dataset.tag === state.activeTag);
   });
   els.submitButton.textContent = "수정 완료";
+  if (window.innerWidth <= 820) {
+    els.formCard.classList.add("mobile-open");
+    els.mobileFormToggle.textContent = "기록 입력 닫기";
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
