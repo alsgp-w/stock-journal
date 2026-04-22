@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Trading Journal</title>
+  <meta
+    name="description"
+    content="주식 투자 기록, 일별 수익 달력, 전략 복기를 한 곳에서 관리하는 개인용 매매일지"
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <div class="bg-grid"></div>
+
+    <main class="app">
+      <header class="hero glass-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Stock Trading Journal</p>
+          <h1>매일 얼마를 벌었는지,<br>한눈에 보이는 주식 매매일지</h1>
+          <p class="hero-text">
+            거래 한 건의 디테일부터 하루 손익 흐름까지 함께 기록하세요.
+            달력, 요약 카드, 거래 복기를 한 화면에 담았습니다.
+          </p>
+        </div>
+
+        <div class="hero-panel">
+          <div class="mini-stat">
+            <span>오늘 실현손익</span>
+            <strong id="todayProfitValue">₩0</strong>
+          </div>
+          <div class="mini-stat">
+            <span>이번 달 손익</span>
+            <strong id="monthProfitValue">₩0</strong>
+          </div>
+          <div class="mini-stat">
+            <span>누적 수익률</span>
+            <strong id="cumulativeRateValue">0%</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summaryGrid">
+        <article class="summary-card glass-card">
+          <span class="summary-label">오늘 손익</span>
+          <strong class="summary-value" id="todayProfit">₩0</strong>
+          <p class="summary-meta" id="todayTradesMeta">오늘 거래 0건</p>
+        </article>
+        <article class="summary-card glass-card">
+          <span class="summary-label">이번 주 손익</span>
+          <strong class="summary-value" id="weekProfit">₩0</strong>
+          <p class="summary-meta" id="weekMeta">이번 주 거래 0건</p>
+        </article>
+        <article class="summary-card glass-card">
+          <span class="summary-label">이번 달 손익</span>
+          <strong class="summary-value" id="monthProfit">₩0</strong>
+          <p class="summary-meta" id="monthMeta">수익일 0일 / 손실일 0일</p>
+        </article>
+        <article class="summary-card glass-card">
+          <span class="summary-label">승률</span>
+          <strong class="summary-value" id="winRate">0%</strong>
+          <p class="summary-meta" id="winRateMeta">수익 거래 0건</p>
+        </article>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="form-card glass-card">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Trade Entry</p>
+              <h2>주식 매매 기록</h2>
+            </div>
+            <button id="resetFormBtn" class="ghost-button" type="button">입력 초기화</button>
+          </div>
+
+          <form id="tradeForm" class="trade-form">
+            <div class="form-row two-col">
+              <label>
+                <span>거래일</span>
+                <input type="date" id="tradeDate" required>
+              </label>
+              <label>
+                <span>시장</span>
+                <select id="market">
+                  <option value="KOSPI">KOSPI</option>
+                  <option value="KOSDAQ">KOSDAQ</option>
+                  <option value="NASDAQ">NASDAQ</option>
+                  <option value="NYSE">NYSE</option>
+                  <option value="ETF">ETF</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-row two-col">
+              <label>
+                <span>종목명</span>
+                <input type="text" id="stockName" placeholder="예: 삼성전자" required>
+              </label>
+              <label>
+                <span>티커</span>
+                <input type="text" id="ticker" placeholder="예: 005930 / AAPL" required>
+              </label>
+            </div>
+
+            <div class="form-row three-col">
+              <label>
+                <span>거래 유형</span>
+                <select id="tradeType">
+                  <option value="BUY">매수</option>
+                  <option value="SELL">매도</option>
+                  <option value="PARTIAL_SELL">부분매도</option>
+                  <option value="FULL_SELL">전량매도</option>
+                </select>
+              </label>
+              <label>
+                <span>수량</span>
+                <input type="number" id="quantity" min="0" step="1" placeholder="10" required>
+              </label>
+              <label>
+                <span>전략</span>
+                <select id="strategy">
+                  <option value="돌파매매">돌파매매</option>
+                  <option value="추세추종">추세추종</option>
+                  <option value="눌림목">눌림목</option>
+                  <option value="스윙">스윙</option>
+                  <option value="단타">단타</option>
+                  <option value="가치투자">가치투자</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-row four-col">
+              <label>
+                <span>매수 단가</span>
+                <input type="number" id="buyPrice" min="0" step="0.01" placeholder="71000" required>
+              </label>
+              <label>
+                <span>매도 단가</span>
+                <input type="number" id="sellPrice" min="0" step="0.01" placeholder="72800">
+              </label>
+              <label>
+                <span>수수료</span>
+                <input type="number" id="fees" min="0" step="1" placeholder="1500">
+              </label>
+              <label>
+                <span>세금</span>
+                <input type="number" id="tax" min="0" step="1" placeholder="300">
+              </label>
+            </div>
+
+            <div class="form-row three-col">
+              <label>
+                <span>실현손익</span>
+                <input type="number" id="profit" step="1" placeholder="자동 계산됨">
+              </label>
+              <label>
+                <span>수익률(%)</span>
+                <input type="number" id="profitRate" step="0.01" placeholder="자동 계산됨">
+              </label>
+              <label>
+                <span>심리 상태</span>
+                <select id="mood">
+                  <option value="침착">침착</option>
+                  <option value="집중">집중</option>
+                  <option value="조급">조급</option>
+                  <option value="불안">불안</option>
+                  <option value="확신">확신</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="tag-row">
+              <span>전략 태그</span>
+              <div class="tag-options" id="tagOptions">
+                <button type="button" class="tag-chip active" data-tag="실적">실적</button>
+                <button type="button" class="tag-chip" data-tag="돌파">돌파</button>
+                <button type="button" class="tag-chip" data-tag="갭상승">갭상승</button>
+                <button type="button" class="tag-chip" data-tag="리버설">리버설</button>
+                <button type="button" class="tag-chip" data-tag="분할매수">분할매수</button>
+                <button type="button" class="tag-chip" data-tag="뉴스">뉴스</button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label>
+                <span>진입 근거</span>
+                <textarea id="reason" rows="3" placeholder="왜 이 거래를 했는지 기록해보세요."></textarea>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
+                <span>복기 메모</span>
+                <textarea id="memo" rows="4" placeholder="잘한 점, 아쉬운 점, 다음에 지킬 원칙을 적어보세요."></textarea>
+              </label>
+            </div>
+
+            <div class="form-row two-col">
+              <label>
+                <span>차트 이미지 URL</span>
+                <input type="url" id="imageUrl" placeholder="https://...">
+              </label>
+              <label class="autocalc">
+                <span>자동 계산</span>
+                <div class="toggle-line">
+                  <input type="checkbox" id="autoCalc" checked>
+                  <small>가격/수량 기준으로 손익 자동 계산</small>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="primary-button" id="submitButton">거래 저장</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="calendar-card glass-card">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Daily P&amp;L Calendar</p>
+              <h2>일별 수익 달력</h2>
+            </div>
+            <div class="calendar-nav">
+              <button class="icon-button" id="prevMonthBtn" type="button" aria-label="이전 달">←</button>
+              <strong id="calendarTitle">2026년 4월</strong>
+              <button class="icon-button" id="nextMonthBtn" type="button" aria-label="다음 달">→</button>
+            </div>
+          </div>
+
+          <div class="calendar-weekdays" id="calendarWeekdays"></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+
+          <div class="calendar-summary">
+            <div>
+              <span>가장 많이 번 날</span>
+              <strong id="bestDayValue">없음</strong>
+            </div>
+            <div>
+              <span>가장 크게 잃은 날</span>
+              <strong id="worstDayValue">없음</strong>
+            </div>
+            <div>
+              <span>하루 평균 손익</span>
+              <strong id="avgDayValue">₩0</strong>
+            </div>
+          </div>
+
+          <div class="day-detail" id="dayDetail">
+            <div class="day-detail-header">
+              <div>
+                <p class="section-kicker">Daily Review</p>
+                <h3 id="detailTitle">날짜를 선택해보세요</h3>
+              </div>
+              <span class="detail-profit neutral" id="detailProfit">₩0</span>
+            </div>
+            <p class="detail-meta" id="detailMeta">달력에서 날짜를 누르면 그날의 거래와 메모를 볼 수 있어요.</p>
+            <div id="detailTrades" class="detail-trades empty-detail">
+              아직 선택된 날짜가 없습니다.
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="analytics-card glass-card">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Performance Snapshot</p>
+              <h2>성과 분석</h2>
+            </div>
+          </div>
+
+          <div class="analytics-grid">
+            <article class="analytic-block">
+              <span>평균 수익 거래</span>
+              <strong id="avgWinValue">₩0</strong>
+            </article>
+            <article class="analytic-block">
+              <span>평균 손실 거래</span>
+              <strong id="avgLossValue">₩0</strong>
+            </article>
+            <article class="analytic-block">
+              <span>최고 수익 종목</span>
+              <strong id="bestTickerValue">-</strong>
+            </article>
+            <article class="analytic-block">
+              <span>가장 많이 쓴 전략</span>
+              <strong id="bestStrategyValue">-</strong>
+            </article>
+          </div>
+
+          <div class="progress-panel">
+            <div class="progress-copy">
+              <span>수익 거래 비중</span>
+              <strong id="profitTradeCount">0 / 0</strong>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="table-card glass-card">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Trade History</p>
+              <h2>누적 거래 기록</h2>
+            </div>
+            <div class="table-tools">
+              <input type="search" id="searchInput" placeholder="종목명 또는 티커 검색">
+              <button type="button" class="ghost-button" id="exportBtn">백업</button>
+              <button type="button" class="ghost-button" id="importBtn">복원</button>
+              <button type="button" class="ghost-button" id="clearAllBtn">전체 삭제</button>
+            </div>
+          </div>
+
+          <input type="file" id="importFileInput" accept="application/json" hidden>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>종목</th>
+                  <th>유형</th>
+                  <th>전략</th>
+                  <th>손익</th>
+                  <th>수익률</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="tradeTableBody">
+                <tr>
+                  <td colspan="7" class="empty-row">아직 저장된 거래가 없습니다.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
