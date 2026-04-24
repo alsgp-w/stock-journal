@@ -110,6 +110,7 @@ function cacheElements() {
     "todayProfitValue",
     "monthProfitValue",
     "cumulativeRateValue",
+    "cumulativeProfitValue",
     "startingCapitalValue",
     "currentCapitalValue",
     "startingCapitalInput",
@@ -399,33 +400,29 @@ function renderSummary() {
   const todayProfit = sumProfit(todayLogs);
   const weekProfit = sumProfit(weekLogs);
   const monthProfit = sumProfit(monthLogs);
-  const winRate = state.logs.length ? (profitLogs.length / state.logs.length) * 100 : 0;
 
   const monthDaily = buildDailyProfitMap(monthLogs);
   const gainDays = Object.values(monthDaily).filter((value) => value > 0).length;
   const lossDays = Object.values(monthDaily).filter((value) => value < 0).length;
 
+  const invested = state.logs.reduce((sum, log) => sum + (Number(log.buyPrice) * Number(log.quantity) || 0), 0);
+  const cumulativeProfit = sumProfit(state.logs);
+  const cumulativeRate = invested ? (cumulativeProfit / invested) * 100 : 0;
+
   setMoneyText(els.todayProfit, todayProfit);
   setMoneyText(els.weekProfit, weekProfit);
   setMoneyText(els.monthProfit, monthProfit);
-  els.winRate.textContent = `${winRate.toFixed(1)}%`;
+  els.winRate.textContent = `${cumulativeRate.toFixed(2)}%`;
 
   els.todayTradesMeta.textContent = `오늘 거래 ${todayLogs.length}건`;
   els.weekMeta.textContent = `이번 주 거래 ${weekLogs.length}건`;
   els.monthMeta.textContent = `수익일 ${gainDays}일 / 손실일 ${lossDays}일`;
-  els.winRateMeta.textContent = `수익 거래 ${profitLogs.length}건`;
-
-  setMoneyText(els.todayProfitValue, todayProfit);
-  setMoneyText(els.monthProfitValue, monthProfit);
-
-  const invested = state.logs.reduce((sum, log) => sum + (Number(log.buyPrice) * Number(log.quantity) || 0), 0);
-  const cumulativeProfit = sumProfit(state.logs);
-  const cumulativeRate = invested ? (cumulativeProfit / invested) * 100 : 0;
-  els.cumulativeRateValue.textContent = `${cumulativeRate.toFixed(2)}%`;
+  els.winRateMeta.textContent = `전체 거래 기준`;
 
   const currentCapital = state.startingCapital + cumulativeProfit;
   setMoneyText(els.startingCapitalValue, state.startingCapital);
   setMoneyText(els.currentCapitalValue, currentCapital);
+  setMoneyText(els.cumulativeProfitValue, cumulativeProfit);
 }
 
 function renderCalendar() {

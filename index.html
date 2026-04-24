@@ -32,41 +32,25 @@
             거래 한 건의 디테일부터 하루 손익 흐름까지 함께 기록하세요.
             달력, 요약 카드, 거래 복기를 한 화면에 담았습니다.
           </p>
+        </div>
 
-          <div class="hero-capital">
-            <div class="capital-stats hero-capital-stats">
-              <article class="capital-stat">
-                <span>초기 시드</span>
-                <strong id="startingCapitalValue">₩0</strong>
-              </article>
-              <article class="capital-stat">
-                <span>현재 총 시드</span>
-                <strong id="currentCapitalValue">₩0</strong>
-              </article>
+        <div class="hero-panel">
+          <div class="hero-summary-card">
+            <div class="hero-summary-head">
+              <span class="capital-kicker">자산 요약</span>
+              <button type="submit" form="capitalForm" class="ghost-button" id="capitalSubmitButton">시드 수정</button>
             </div>
+            <strong class="hero-summary-value" id="currentCapitalValue">₩0</strong>
+            <p class="hero-summary-meta">
+              초기 시드 <span id="startingCapitalValue">₩0</span> · 누적 손익 <span id="cumulativeProfitValue">₩0</span>
+            </p>
 
             <form id="capitalForm" class="capital-form hero-capital-form">
               <label id="capitalInputWrap">
                 <span>초기 시드 입력</span>
                 <input type="number" id="startingCapitalInput" min="0" step="1" placeholder="예: 3000000">
               </label>
-              <button type="submit" class="ghost-button" id="capitalSubmitButton">수정</button>
             </form>
-          </div>
-        </div>
-
-        <div class="hero-panel">
-          <div class="mini-stat">
-            <span>오늘 실현손익</span>
-            <strong id="todayProfitValue">₩0</strong>
-          </div>
-          <div class="mini-stat">
-            <span>이번 달 손익</span>
-            <strong id="monthProfitValue">₩0</strong>
-          </div>
-          <div class="mini-stat">
-            <span>누적 수익률</span>
-            <strong id="cumulativeRateValue">0%</strong>
           </div>
         </div>
       </header>
@@ -88,9 +72,9 @@
           <p class="summary-meta" id="monthMeta">수익일 0일 / 손실일 0일</p>
         </article>
         <article class="summary-card glass-card">
-          <span class="summary-label">승률</span>
+          <span class="summary-label">누적 수익률</span>
           <strong class="summary-value" id="winRate">0%</strong>
-          <p class="summary-meta" id="winRateMeta">수익 거래 0건</p>
+          <p class="summary-meta" id="winRateMeta">전체 거래 기준</p>
         </article>
       </section>
 
