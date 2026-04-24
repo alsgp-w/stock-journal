@@ -303,7 +303,7 @@ select {
 
 .workspace-grid {
   grid-template-columns: minmax(0, 1.04fr) minmax(380px, 0.96fr);
-  align-items: start;
+  align-items: stretch;
   margin-bottom: 20px;
 }
 
@@ -316,6 +316,7 @@ select {
 .workspace-side {
   display: grid;
   gap: 16px;
+  min-height: 0;
 }
 
 .entry-panel[hidden],
@@ -337,6 +338,12 @@ select {
   background: transparent;
   border: none;
   box-shadow: none;
+}
+
+.review-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .section-heading {
@@ -662,6 +669,13 @@ textarea {
   border: 1px solid rgba(148, 163, 184, 0.14);
 }
 
+.side-detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .day-detail-header {
   display: flex;
   align-items: flex-start;
@@ -699,6 +713,13 @@ textarea {
 .detail-trades {
   display: grid;
   gap: 12px;
+}
+
+.side-detail .detail-trades {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .detail-trade-item {
