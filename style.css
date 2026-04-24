@@ -764,45 +764,201 @@ textarea {
   grid-template-columns: minmax(340px, 0.78fr) minmax(0, 1.22fr);
 }
 
+.analytics-nav {
+  display: flex;
+  gap: 10px;
+}
+
+.analytics-slider {
+  position: relative;
+  overflow: hidden;
+}
+
+.analytics-slide {
+  display: none;
+  gap: 18px;
+}
+
+.analytics-slide.active {
+  display: grid;
+}
+
+.chart-card,
+.curve-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.66));
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.chart-card {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.chart-copy span,
+.curve-header span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.chart-copy strong,
+.curve-header strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.6rem;
+  letter-spacing: -0.04em;
+}
+
+.chart-copy p,
+.curve-header p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.donut-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.donut-chart {
+  width: 190px;
+  height: 190px;
+}
+
+.donut-ring,
+.donut-segment {
+  fill: none;
+  stroke-width: 12;
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+}
+
+.donut-ring {
+  stroke: rgba(226, 232, 240, 0.95);
+}
+
+.donut-win {
+  stroke: #10b981;
+}
+
+.donut-draw {
+  stroke: #94a3b8;
+}
+
+.donut-loss {
+  stroke: #ef4444;
+}
+
+.donut-center-label {
+  fill: #64748b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.donut-center-value {
+  fill: #0f172a;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.analytics-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.analytics-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-win {
+  background: #10b981;
+}
+
+.legend-draw {
+  background: #94a3b8;
+}
+
+.legend-loss {
+  background: #ef4444;
+}
+
+.curve-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.curve-card {
+  min-height: 280px;
+}
+
+.curve-chart {
+  width: 100%;
+  height: 260px;
+}
+
+.curve-area {
+  fill: rgba(37, 99, 235, 0.1);
+}
+
+.curve-path {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.curve-point {
+  fill: #2563eb;
+}
+
+.analytics-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0 18px;
+}
+
+.analytics-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(148, 163, 184, 0.5);
+  cursor: pointer;
+}
+
+.analytics-dot.active {
+  background: #2563eb;
+}
+
 .analytics-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 18px;
-}
-
-.progress-panel {
-  padding: 18px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.64));
-  border: 1px solid rgba(148, 163, 184, 0.12);
-}
-
-.progress-copy {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.progress-copy span {
-  color: var(--muted);
-}
-
-.progress-track {
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(226, 232, 240, 0.9);
-  overflow: hidden;
-}
-
-.progress-fill {
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #22c55e, #16a34a);
-  transition: width 0.22s ease;
 }
 
 .table-tools {
@@ -1022,8 +1178,9 @@ tbody tr:last-child td {
   .section-heading,
   .day-detail-header,
   .table-tools,
-  .progress-copy,
-  .form-tools {
+  .form-tools,
+  .curve-header,
+  .chart-card {
     flex-direction: column;
     align-items: stretch;
   }
@@ -1092,5 +1249,9 @@ tbody tr:last-child td {
 
   .history-body {
     height: 620px;
+  }
+
+  .chart-card {
+    grid-template-columns: 1fr;
   }
 }

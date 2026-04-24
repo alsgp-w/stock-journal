@@ -9,7 +9,8 @@ const state = {
   activeTag: "실적",
   searchQuery: "",
   startingCapital: 0,
-  hasSavedCapital: false
+  hasSavedCapital: false,
+  analyticsSlide: 0
 };
 
 const els = {};
@@ -77,8 +78,20 @@ function cacheElements() {
     "avgLossValue",
     "bestTickerValue",
     "bestStrategyValue",
-    "profitTradeCount",
-    "progressFill",
+    "analyticsPrev",
+    "analyticsNext",
+    "analyticsSlider",
+    "analyticsWinRate",
+    "analyticsWinMeta",
+    "donutWin",
+    "donutDraw",
+    "donutLoss",
+    "donutCenterValue",
+    "curveHeadline",
+    "curveMeta",
+    "curvePath",
+    "curveArea",
+    "curvePoints",
     "tradeTableBody",
     "searchInput",
     "mobileFormToggle",
@@ -115,6 +128,8 @@ function bindEvents() {
   els.tradeForm.addEventListener("submit", handleSubmit);
   els.mobileFormToggle?.addEventListener("click", toggleMobileForm);
   els.calendarQuickAdd.addEventListener("click", () => openTradePopup(state.selectedDate || formatDateInput(new Date())));
+  els.analyticsPrev.addEventListener("click", () => setAnalyticsSlide(state.analyticsSlide - 1));
+  els.analyticsNext.addEventListener("click", () => setAnalyticsSlide(state.analyticsSlide + 1));
   els.resetFormBtn.addEventListener("click", resetForm);
   els.prevMonthBtn.addEventListener("click", () => moveMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => moveMonth(1));
@@ -126,6 +141,9 @@ function bindEvents() {
   els.importBtn?.addEventListener("click", () => els.importFileInput.click());
   els.importFileInput?.addEventListener("change", importLogs);
   els.clearAllBtn?.addEventListener("click", clearAllLogs);
+  document.querySelectorAll(".analytics-dot").forEach((dot) => {
+    dot.addEventListener("click", () => setAnalyticsSlide(Number(dot.dataset.slide)));
+  });
 
   [els.quantity, els.buyPrice, els.sellPrice, els.fees, els.tax].forEach((input) => {
     input.addEventListener("input", handleAutoCalculation);
@@ -523,6 +541,7 @@ function renderSelectedDateDetail() {
 
 function renderAnalytics() {
   const wins = state.logs.filter((log) => Number(log.profit) > 0);
+  const draws = state.logs.filter((log) => Number(log.profit) === 0);
   const losses = state.logs.filter((log) => Number(log.profit) < 0);
   const avgWin = wins.length ? sumProfit(wins) / wins.length : 0;
   const avgLoss = losses.length ? sumProfit(losses) / losses.length : 0;
@@ -543,9 +562,99 @@ function renderAnalytics() {
   els.bestTickerValue.textContent = bestTicker ? `${bestTicker[0]} · ${formatMoney(bestTicker[1])}` : "-";
   els.bestStrategyValue.textContent = bestStrategy ? `${bestStrategy[0]} · ${bestStrategy[1]}건` : "-";
 
-  els.profitTradeCount.textContent = `${wins.length} / ${state.logs.length}`;
-  const progress = state.logs.length ? (wins.length / state.logs.length) * 100 : 0;
-  els.progressFill.style.width = `${progress}%`;
+  renderDonutChart(wins.length, draws.length, losses.length);
+  renderCurveChart();
+  setAnalyticsSlide(state.analyticsSlide, false);
+}
+
+function renderDonutChart(winCount, drawCount, lossCount) {
+  const total = winCount + drawCount + lossCount || 1;
+  const circumference = 2 * Math.PI * 42;
+  const winLength = (winCount / total) * circumference;
+  const drawLength = (drawCount / total) * circumference;
+  const lossLength = (lossCount / total) * circumference;
+
+  els.donutWin.style.strokeDasharray = `${winLength} ${circumference}`;
+  els.donutWin.style.strokeDashoffset = "0";
+  els.donutDraw.style.strokeDasharray = `${drawLength} ${circumference}`;
+  els.donutDraw.style.strokeDashoffset = `${-winLength}`;
+  els.donutLoss.style.strokeDasharray = `${lossLength} ${circumference}`;
+  els.donutLoss.style.strokeDashoffset = `${-(winLength + drawLength)}`;
+
+  const winRate = total ? ((winCount / total) * 100).toFixed(1) : "0.0";
+  els.analyticsWinRate.textContent = `${winRate}%`;
+  els.analyticsWinMeta.textContent = `WIN ${winCount}건 · DRAW ${drawCount}건 · LOSS ${lossCount}건`;
+  els.donutCenterValue.textContent = `${winRate}%`;
+}
+
+function renderCurveChart() {
+  if (!state.logs.length) {
+    els.curveHeadline.textContent = "₩0";
+    els.curveMeta.textContent = "날짜 기준 총 자산 변화를 보여줍니다.";
+    els.curvePath.setAttribute("d", "");
+    els.curveArea.setAttribute("d", "");
+    els.curvePoints.innerHTML = "";
+    return;
+  }
+
+  const byDate = [...state.logs]
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .reduce((acc, log) => {
+      const last = acc[acc.length - 1];
+      const date = log.date;
+      const profit = Number(log.profit || 0);
+      if (last && last.date === date) {
+        last.value += profit;
+      } else {
+        acc.push({ date, value: profit });
+      }
+      return acc;
+    }, [])
+    .map((item, index, array) => ({
+      date: item.date,
+      value: array.slice(0, index + 1).reduce((sum, current) => sum + current.value, 0) + state.startingCapital
+    }));
+
+  const values = byDate.map((item) => item.value);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const range = maxValue - minValue || 1;
+  const width = 560;
+  const height = 260;
+  const paddingX = 28;
+  const paddingY = 22;
+
+  const points = byDate.map((item, index) => {
+    const x = paddingX + (index * (width - paddingX * 2)) / Math.max(byDate.length - 1, 1);
+    const y = height - paddingY - ((item.value - minValue) / range) * (height - paddingY * 2);
+    return { ...item, x, y };
+  });
+
+  const path = points
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+    .join(" ");
+  const area = `${path} L ${points[points.length - 1].x.toFixed(2)} ${height - paddingY} L ${points[0].x.toFixed(2)} ${height - paddingY} Z`;
+
+  els.curvePath.setAttribute("d", path);
+  els.curveArea.setAttribute("d", area);
+  els.curvePoints.innerHTML = points
+    .map((point) => `<circle class="curve-point" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="4"></circle>`)
+    .join("");
+
+  els.curveHeadline.textContent = formatMoney(values[values.length - 1]);
+  els.curveMeta.textContent = `${byDate[0].date}부터 ${byDate[byDate.length - 1].date}까지의 총 자산 변화`;
+}
+
+function setAnalyticsSlide(index, scroll = true) {
+  const slides = [...document.querySelectorAll(".analytics-slide")];
+  const dots = [...document.querySelectorAll(".analytics-dot")];
+  const total = slides.length;
+  state.analyticsSlide = (index + total) % total;
+  slides.forEach((slide, i) => slide.classList.toggle("active", i === state.analyticsSlide));
+  dots.forEach((dot, i) => dot.classList.toggle("active", i === state.analyticsSlide));
+  if (scroll && window.innerWidth <= 820) {
+    slides[state.analyticsSlide].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }
 }
 
 function renderTradeTable() {

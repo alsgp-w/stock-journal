@@ -312,35 +312,80 @@
               <p class="section-kicker">Performance Snapshot</p>
               <h2>성과 분석</h2>
             </div>
+            <div class="analytics-nav">
+              <button type="button" class="icon-button" id="analyticsPrev" aria-label="이전 분석">←</button>
+              <button type="button" class="icon-button" id="analyticsNext" aria-label="다음 분석">→</button>
+            </div>
           </div>
 
-          <div class="analytics-grid">
-            <article class="analytic-block">
-              <span>평균 수익 거래</span>
-              <strong id="avgWinValue">₩0</strong>
-            </article>
-            <article class="analytic-block">
-              <span>평균 손실 거래</span>
-              <strong id="avgLossValue">₩0</strong>
-            </article>
-            <article class="analytic-block">
-              <span>최고 수익 종목</span>
-              <strong id="bestTickerValue">-</strong>
-            </article>
-            <article class="analytic-block">
-              <span>가장 많이 쓴 전략</span>
-              <strong id="bestStrategyValue">-</strong>
-            </article>
+          <div class="analytics-slider" id="analyticsSlider">
+            <section class="analytics-slide active" data-slide="0">
+              <div class="chart-card">
+                <div class="chart-copy">
+                  <span>거래 결과 비중</span>
+                  <strong id="analyticsWinRate">0%</strong>
+                  <p id="analyticsWinMeta">WIN / DRAW / LOSS 비율을 보여줍니다.</p>
+                </div>
+                <div class="donut-wrap">
+                  <svg viewBox="0 0 120 120" class="donut-chart" aria-label="결과 비중 그래프">
+                    <circle class="donut-ring" cx="60" cy="60" r="42"></circle>
+                    <circle class="donut-segment donut-win" id="donutWin" cx="60" cy="60" r="42"></circle>
+                    <circle class="donut-segment donut-draw" id="donutDraw" cx="60" cy="60" r="42"></circle>
+                    <circle class="donut-segment donut-loss" id="donutLoss" cx="60" cy="60" r="42"></circle>
+                    <text x="60" y="56" text-anchor="middle" class="donut-center-label">WIN</text>
+                    <text x="60" y="72" text-anchor="middle" class="donut-center-value" id="donutCenterValue">0%</text>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="analytics-grid">
+                <article class="analytic-block">
+                  <span>평균 수익 거래</span>
+                  <strong id="avgWinValue">₩0</strong>
+                </article>
+                <article class="analytic-block">
+                  <span>평균 손실 거래</span>
+                  <strong id="avgLossValue">₩0</strong>
+                </article>
+                <article class="analytic-block">
+                  <span>최고 수익 종목</span>
+                  <strong id="bestTickerValue">-</strong>
+                </article>
+                <article class="analytic-block">
+                  <span>가장 많이 쓴 전략</span>
+                  <strong id="bestStrategyValue">-</strong>
+                </article>
+              </div>
+
+              <div class="analytics-legend">
+                <span><i class="legend-dot legend-win"></i>WIN</span>
+                <span><i class="legend-dot legend-draw"></i>DRAW</span>
+                <span><i class="legend-dot legend-loss"></i>LOSS</span>
+              </div>
+            </section>
+
+            <section class="analytics-slide" data-slide="1">
+              <div class="curve-header">
+                <div>
+                  <span>누적 수익 곡선</span>
+                  <strong id="curveHeadline">₩0</strong>
+                </div>
+                <p id="curveMeta">날짜 기준 총 자산 변화를 보여줍니다.</p>
+              </div>
+
+              <div class="curve-card">
+                <svg viewBox="0 0 560 260" class="curve-chart" aria-label="누적 수익 곡선">
+                  <path id="curveArea" class="curve-area"></path>
+                  <path id="curvePath" class="curve-path"></path>
+                  <g id="curvePoints"></g>
+                </svg>
+              </div>
+            </section>
           </div>
 
-          <div class="progress-panel">
-            <div class="progress-copy">
-              <span>수익 거래 비중</span>
-              <strong id="profitTradeCount">0 / 0</strong>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
+          <div class="analytics-dots">
+            <button type="button" class="analytics-dot active" data-slide="0" aria-label="도넛 차트 보기"></button>
+            <button type="button" class="analytics-dot" data-slide="1" aria-label="누적 수익 곡선 보기"></button>
           </div>
         </section>
 
