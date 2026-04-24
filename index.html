@@ -21,6 +21,7 @@
     <div class="bg-orb orb-a"></div>
     <div class="bg-orb orb-b"></div>
     <div class="bg-grid"></div>
+    <div id="formOverlay" class="form-overlay"></div>
 
     <main class="app">
       <header class="hero glass-card">
@@ -101,6 +102,7 @@
               <h2>주식 매매 기록</h2>
             </div>
             <div class="form-tools">
+              <button id="formPopupClose" class="ghost-button popup-close-button" type="button">닫기</button>
               <button id="mobileFormToggle" class="ghost-button mobile-only" type="button">기록 입력 열기</button>
               <button id="resetFormBtn" class="ghost-button" type="button">입력 초기화</button>
             </div>
@@ -254,10 +256,13 @@
               <p class="section-kicker">Daily P&amp;L Calendar</p>
               <h2>일별 수익 달력</h2>
             </div>
-            <div class="calendar-nav">
-              <button class="icon-button" id="prevMonthBtn" type="button" aria-label="이전 달">←</button>
-              <strong id="calendarTitle">2026년 4월</strong>
-              <button class="icon-button" id="nextMonthBtn" type="button" aria-label="다음 달">→</button>
+            <div class="calendar-header-tools">
+              <button class="ghost-button quick-add-button" id="calendarQuickAdd" type="button">기록하기</button>
+              <div class="calendar-nav">
+                <button class="icon-button" id="prevMonthBtn" type="button" aria-label="이전 달">←</button>
+                <strong id="calendarTitle">2026년 4월</strong>
+                <button class="icon-button" id="nextMonthBtn" type="button" aria-label="다음 달">→</button>
+              </div>
             </div>
           </div>
 

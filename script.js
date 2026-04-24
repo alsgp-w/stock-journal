@@ -27,6 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function cacheElements() {
   const ids = [
     "formCard",
+    "formOverlay",
+    "formPopupClose",
     "capitalForm",
     "tradeForm",
     "tradeDate",
@@ -51,6 +53,7 @@ function cacheElements() {
     "resetFormBtn",
     "prevMonthBtn",
     "nextMonthBtn",
+    "calendarQuickAdd",
     "calendarTitle",
     "calendarGrid",
     "calendarWeekdays",
@@ -105,9 +108,12 @@ function initializeWeekdays() {
 }
 
 function bindEvents() {
+  els.formOverlay.addEventListener("click", closeTradePopup);
+  els.formPopupClose.addEventListener("click", closeTradePopup);
   els.capitalForm.addEventListener("submit", handleCapitalSubmit);
   els.tradeForm.addEventListener("submit", handleSubmit);
   els.mobileFormToggle.addEventListener("click", toggleMobileForm);
+  els.calendarQuickAdd.addEventListener("click", () => openTradePopup(state.selectedDate || formatDateInput(new Date())));
   els.resetFormBtn.addEventListener("click", resetForm);
   els.prevMonthBtn.addEventListener("click", () => moveMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => moveMonth(1));
@@ -141,6 +147,22 @@ function toggleMobileForm() {
   els.formCard.classList.toggle("mobile-open");
   const isOpen = els.formCard.classList.contains("mobile-open");
   els.mobileFormToggle.textContent = isOpen ? "기록 입력 닫기" : "기록 입력 열기";
+}
+
+function openTradePopup(date = null) {
+  if (date) {
+    els.tradeDate.value = date;
+  }
+  els.formCard.classList.add("popup-open");
+  els.formOverlay.classList.add("active");
+  document.body.style.overflow = "hidden";
+  els.stockName.focus();
+}
+
+function closeTradePopup() {
+  els.formCard.classList.remove("popup-open");
+  els.formOverlay.classList.remove("active");
+  document.body.style.overflow = "";
 }
 
 function handleCapitalSubmit(event) {
@@ -216,6 +238,7 @@ function handleSubmit(event) {
   state.selectedDate = trade.date;
   state.currentMonth = new Date(`${trade.date}T00:00:00`);
   resetForm();
+  closeTradePopup();
   render();
 }
 
