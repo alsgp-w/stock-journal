@@ -90,7 +90,6 @@ function cacheElements() {
     "curveHeadline",
     "curveMeta",
     "curveRange",
-    "curveStartCapital",
     "curveNetProfit",
     "curvePeakCapital",
     "curveGuides",
@@ -612,7 +611,6 @@ function renderCurveChart() {
     els.curveHeadline.textContent = "₩0";
     els.curveMeta.textContent = "총 자산 변화 기준";
     els.curveRange.textContent = "기간 · --.--.-- - --.--.--";
-    els.curveStartCapital.textContent = formatMoney(state.startingCapital);
     els.curveNetProfit.textContent = "₩0";
     els.curvePeakCapital.textContent = formatMoney(state.startingCapital);
     els.curveGuides.innerHTML = "";
@@ -701,7 +699,6 @@ function renderCurveChart() {
   els.curveHeadline.textContent = formatMoney(values[values.length - 1]);
   els.curveMeta.textContent = "총 자산 변화 기준";
   els.curveRange.textContent = `기간 · ${formatShortDateWithYear(byDate[0].date)} - ${formatShortDateWithYear(byDate[byDate.length - 1].date)}`;
-  els.curveStartCapital.textContent = formatMoney(state.startingCapital);
   els.curveNetProfit.textContent = formatMoney(values[values.length - 1] - state.startingCapital);
   els.curvePeakCapital.textContent = formatMoney(Math.max(...values));
 }
