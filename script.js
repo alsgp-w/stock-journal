@@ -8,7 +8,8 @@ const state = {
   editingId: null,
   activeTag: "실적",
   searchQuery: "",
-  startingCapital: 0
+  startingCapital: 0,
+  hasSavedCapital: false
 };
 
 const els = {};
@@ -88,6 +89,7 @@ function cacheElements() {
     "startingCapitalValue",
     "currentCapitalValue",
     "startingCapitalInput",
+    "capitalSubmitButton",
     "tagOptions"
   ];
 
@@ -142,8 +144,17 @@ function toggleMobileForm() {
 
 function handleCapitalSubmit(event) {
   event.preventDefault();
+  if (state.hasSavedCapital && els.startingCapitalInput.disabled) {
+    els.startingCapitalInput.disabled = false;
+    els.startingCapitalInput.focus();
+    els.capitalSubmitButton.textContent = "저장";
+    return;
+  }
+
   state.startingCapital = Number(els.startingCapitalInput.value) || 0;
+  state.hasSavedCapital = true;
   persistSettings();
+  syncCapitalFormState();
   renderSummary();
 }
 
@@ -283,12 +294,15 @@ function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {};
     state.startingCapital = Number(saved.startingCapital) || 0;
+    state.hasSavedCapital = Boolean(saved.hasSavedCapital);
     if (els.startingCapitalInput) {
       els.startingCapitalInput.value = state.startingCapital ? String(state.startingCapital) : "";
     }
+    syncCapitalFormState();
   } catch (error) {
     console.error(error);
     state.startingCapital = 0;
+    state.hasSavedCapital = false;
   }
 }
 
@@ -300,9 +314,16 @@ function persistSettings() {
   localStorage.setItem(
     SETTINGS_KEY,
     JSON.stringify({
-      startingCapital: state.startingCapital
+      startingCapital: state.startingCapital,
+      hasSavedCapital: state.hasSavedCapital
     })
   );
+}
+
+function syncCapitalFormState() {
+  const locked = state.hasSavedCapital;
+  els.startingCapitalInput.disabled = locked;
+  els.capitalSubmitButton.textContent = locked ? "수정" : "저장";
 }
 
 function render() {
@@ -386,6 +407,7 @@ function renderCalendar() {
     `;
     button.addEventListener("click", () => {
       state.selectedDate = dateKey;
+      els.tradeDate.value = dateKey;
       renderCalendar();
       renderSelectedDateDetail();
     });
