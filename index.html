@@ -162,7 +162,7 @@
                 </label>
               </div>
 
-              <div class="form-row two-col">
+              <div class="form-row three-col">
                 <label>
                   <span>종목명</span>
                   <input type="text" id="stockName" placeholder="예: 삼성전자" required>
@@ -170,6 +170,13 @@
                 <label>
                   <span>티커</span>
                   <input type="text" id="ticker" placeholder="예: 005930 / AAPL">
+                </label>
+                <label>
+                  <span>통화</span>
+                  <select id="currency">
+                    <option value="KRW">KRW</option>
+                    <option value="USD">USD</option>
+                  </select>
                 </label>
               </div>
 
@@ -296,9 +303,18 @@
               <p class="section-kicker">Performance Snapshot</p>
               <h2>성과 분석</h2>
             </div>
-            <div class="analytics-nav">
-              <button type="button" class="icon-button" id="analyticsPrev" aria-label="이전 분석">←</button>
-              <button type="button" class="icon-button" id="analyticsNext" aria-label="다음 분석">→</button>
+            <div class="analytics-controls">
+              <label class="analytics-filter">
+                <span>통화</span>
+                <select id="analyticsCurrencyFilter">
+                  <option value="KRW">KRW</option>
+                  <option value="USD">USD</option>
+                </select>
+              </label>
+              <div class="analytics-nav">
+                <button type="button" class="icon-button" id="analyticsPrev" aria-label="이전 분석">←</button>
+                <button type="button" class="icon-button" id="analyticsNext" aria-label="다음 분석">→</button>
+              </div>
             </div>
           </div>
 

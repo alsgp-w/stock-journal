@@ -10,7 +10,8 @@ const state = {
   searchQuery: "",
   startingCapital: 0,
   hasSavedCapital: false,
-  analyticsSlide: 0
+  analyticsSlide: 0,
+  analyticsCurrency: "KRW"
 };
 
 const els = {};
@@ -37,6 +38,7 @@ function cacheElements() {
     "market",
     "stockName",
     "ticker",
+    "currency",
     "tradeType",
     "quantity",
     "buyPrice",
@@ -80,6 +82,7 @@ function cacheElements() {
     "bestStrategyValue",
     "analyticsPrev",
     "analyticsNext",
+    "analyticsCurrencyFilter",
     "analyticsSlider",
     "analyticsWinRate",
     "analyticsWinMeta",
@@ -137,6 +140,10 @@ function bindEvents() {
   els.calendarQuickAdd.addEventListener("click", () => openTradePopup(state.selectedDate || formatDateInput(new Date())));
   els.analyticsPrev.addEventListener("click", () => setAnalyticsSlide(state.analyticsSlide - 1));
   els.analyticsNext.addEventListener("click", () => setAnalyticsSlide(state.analyticsSlide + 1));
+  els.analyticsCurrencyFilter?.addEventListener("change", (event) => {
+    state.analyticsCurrency = normalizeCurrency(event.target.value);
+    renderAnalytics();
+  });
   els.resetFormBtn.addEventListener("click", resetForm);
   els.prevMonthBtn.addEventListener("click", () => moveMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => moveMonth(1));
@@ -293,6 +300,7 @@ function buildTradePayload() {
     id: Date.now(),
     date,
     market: els.market.value,
+    currency: normalizeCurrency(els.currency.value),
     stockName,
     ticker,
     tradeType: els.tradeType.value,
@@ -324,6 +332,7 @@ function resetForm() {
   els.submitButton.textContent = "거래 저장";
   els.autoCalc.checked = true;
   els.market.value = "KOSPI";
+  els.currency.value = "KRW";
   els.tradeType.value = "BUY";
   els.strategy.value = "돌파매매";
   els.mood.value = "침착";
@@ -394,34 +403,31 @@ function renderSummary() {
   const todayLogs = state.logs.filter((log) => log.date === today);
   const weekLogs = state.logs.filter((log) => isDateBetween(log.date, startOfWeek, endOfWeek));
   const monthLogs = state.logs.filter((log) => log.date.startsWith(monthKey));
-  const profitLogs = state.logs.filter((log) => Number(log.profit) > 0);
-
-  const todayProfit = sumProfit(todayLogs);
-  const weekProfit = sumProfit(weekLogs);
-  const monthProfit = sumProfit(monthLogs);
+  const todayProfit = sumProfitByCurrency(todayLogs);
+  const weekProfit = sumProfitByCurrency(weekLogs);
+  const monthProfit = sumProfitByCurrency(monthLogs);
 
   const monthDaily = buildDailyProfitMap(monthLogs);
-  const gainDays = Object.values(monthDaily).filter((value) => value > 0).length;
-  const lossDays = Object.values(monthDaily).filter((value) => value < 0).length;
+  const gainDays = Object.values(monthDaily).filter((value) => Number(value.KRW || 0) > 0 || Number(value.USD || 0) > 0).length;
+  const lossDays = Object.values(monthDaily).filter((value) => Number(value.KRW || 0) < 0 || Number(value.USD || 0) < 0).length;
 
-  const invested = state.logs.reduce((sum, log) => sum + (Number(log.buyPrice) * Number(log.quantity) || 0), 0);
-  const cumulativeProfit = sumProfit(state.logs);
-  const cumulativeRate = invested ? (cumulativeProfit / invested) * 100 : 0;
+  const cumulativeProfit = sumProfitByCurrency(state.logs);
+  const cumulativeRate = getCumulativeRateByCurrency(state.logs);
 
-  setMoneyText(els.todayProfit, todayProfit);
-  setMoneyText(els.weekProfit, weekProfit);
-  setMoneyText(els.monthProfit, monthProfit);
-  els.winRate.textContent = `${cumulativeRate.toFixed(2)}%`;
+  setMoneyMapText(els.todayProfit, todayProfit);
+  setMoneyMapText(els.weekProfit, weekProfit);
+  setMoneyMapText(els.monthProfit, monthProfit);
+  setPercentMapText(els.winRate, cumulativeRate);
 
   els.todayTradesMeta.textContent = `오늘 거래 ${todayLogs.length}건`;
   els.weekMeta.textContent = `이번 주 거래 ${weekLogs.length}건`;
   els.monthMeta.textContent = `수익일 ${gainDays}일 / 손실일 ${lossDays}일`;
-  els.winRateMeta.textContent = `전체 거래 기준`;
+  els.winRateMeta.textContent = `통화별 분리 기준`;
 
-  const currentCapital = state.startingCapital + cumulativeProfit;
+  const currentCapital = state.startingCapital + (cumulativeProfit.KRW || 0);
   setMoneyText(els.startingCapitalValue, state.startingCapital);
   setMoneyText(els.currentCapitalValue, currentCapital);
-  setMoneyText(els.cumulativeProfitValue, cumulativeProfit);
+  setMoneyMapText(els.cumulativeProfitValue, cumulativeProfit, { compact: true });
 }
 
 function renderCalendar() {
@@ -439,17 +445,17 @@ function renderCalendar() {
   for (let index = 0; index < totalCells; index += 1) {
     const cellDate = new Date(year, month, index - startOffset + 1);
     const dateKey = formatDateInput(cellDate);
-    const aggregate = dailyMap[dateKey] || { profit: 0, count: 0 };
+    const aggregate = dailyMap[dateKey] || { profit: { KRW: 0, USD: 0 }, count: 0 };
     const inMonth = cellDate.getMonth() === month;
 
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `calendar-day ${inMonth ? getProfitClass(aggregate.profit) : "muted"} ${
+    button.className = `calendar-day ${inMonth ? getProfitClass(getPrimaryProfitValue(aggregate.profit)) : "muted"} ${
       state.selectedDate === dateKey ? "selected" : ""
     }`;
     button.innerHTML = `
       <div class="day-number">${cellDate.getDate()}</div>
-      <div class="day-profit">${aggregate.count ? formatMoney(aggregate.profit) : "기록 없음"}</div>
+      <div class="day-profit">${aggregate.count ? formatMoneyMap(aggregate.profit, { small: true }) : "기록 없음"}</div>
       <span class="day-count">${aggregate.count ? `${aggregate.count}건` : "-"}</span>
     `;
     button.addEventListener("click", () => {
@@ -480,35 +486,9 @@ function updateCalendarSummary(monthLogs) {
     return;
   }
 
-  const bestEntries = entries.filter(([, value]) => value > 0);
-  const worstEntries = entries.filter(([, value]) => value < 0);
-  const best = bestEntries.length
-    ? bestEntries.reduce((max, entry) => (entry[1] > max[1] ? entry : max), bestEntries[0])
-    : null;
-  const worst = worstEntries.length
-    ? worstEntries.reduce((min, entry) => (entry[1] < min[1] ? entry : min), worstEntries[0])
-    : null;
-  const average = entries.reduce((sum, [, value]) => sum + value, 0) / entries.length;
-
-  if (best) {
-    els.bestDayValue.innerHTML = `
-      <span class="summary-split-date">${best[0].slice(8)}일</span>
-      <span class="summary-split-amount">${formatMoney(best[1])}</span>
-    `;
-  } else {
-    els.bestDayValue.textContent = "";
-  }
-
-  if (worst) {
-    els.worstDayValue.innerHTML = `
-      <span class="summary-split-date">${worst[0].slice(8)}일</span>
-      <span class="summary-split-amount">${formatMoney(worst[1])}</span>
-    `;
-  } else {
-    els.worstDayValue.textContent = "";
-  }
-
-  els.avgDayValue.textContent = formatMoney(Math.round(average));
+  els.bestDayValue.innerHTML = formatBestWorstByCurrency(entries, "best");
+  els.worstDayValue.innerHTML = formatBestWorstByCurrency(entries, "worst");
+  els.avgDayValue.innerHTML = formatAverageByCurrency(entries);
 }
 
 function renderSelectedDateDetail() {
@@ -524,11 +504,11 @@ function renderSelectedDateDetail() {
   const dayLogs = state.logs
     .filter((log) => log.date === state.selectedDate)
     .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
-  const dayProfit = sumProfit(dayLogs);
+  const dayProfit = sumProfitByCurrency(dayLogs);
 
   els.detailTitle.textContent = `${formatDateKorean(state.selectedDate)} 거래 복기`;
-  els.detailProfit.textContent = formatMoney(dayProfit);
-  els.detailProfit.className = `detail-profit ${getProfitClass(dayProfit)}`;
+  els.detailProfit.innerHTML = formatMoneyMap(dayProfit, { compact: true });
+  els.detailProfit.className = `detail-profit ${getProfitClass(getPrimaryProfitValue(dayProfit))}`;
   els.detailMeta.textContent = dayLogs.length
     ? `총 ${dayLogs.length}건의 거래가 기록되어 있어요.`
     : "이 날짜에는 아직 기록된 거래가 없습니다.";
@@ -547,9 +527,9 @@ function renderSelectedDateDetail() {
               <div class="detail-name">${escapeHtml(log.stockName)}${log.ticker ? ` <span class="detail-sub">(${escapeHtml(log.ticker)})</span>` : ""}</div>
               <div class="detail-sub">${tradeTypeLabel(log.tradeType)} · ${escapeHtml(log.strategy)} · ${escapeHtml(log.tag || "-")}</div>
             </div>
-            <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
+            <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit, log.currency)}</strong>
           </div>
-          <div class="detail-sub">수량 ${Number(log.quantity).toLocaleString()}주 · 매수 ${formatMoney(log.buyPrice)} · 매도 ${formatMoney(log.sellPrice || 0)} · 수익률 ${formatPercent(log.profitRate)}</div>
+          <div class="detail-sub">수량 ${Number(log.quantity).toLocaleString()}주 · 매수 ${formatMoney(log.buyPrice, log.currency)} · 매도 ${formatMoney(log.sellPrice || 0, log.currency)} · 수익률 ${formatPercent(log.profitRate)}</div>
           ${log.reason ? `<div class="detail-note">${formatMultilineText(log.reason)}</div>` : ""}
           ${log.memo ? `<div class="detail-note">${formatMultilineText(log.memo)}</div>` : ""}
         </article>
@@ -559,18 +539,19 @@ function renderSelectedDateDetail() {
 }
 
 function renderAnalytics() {
-  const wins = state.logs.filter((log) => Number(log.profit) > 0);
-  const draws = state.logs.filter((log) => Number(log.profit) === 0);
-  const losses = state.logs.filter((log) => Number(log.profit) < 0);
+  const scopedLogs = state.logs.filter((log) => normalizeCurrency(log.currency) === state.analyticsCurrency);
+  const wins = scopedLogs.filter((log) => Number(log.profit) > 0);
+  const draws = scopedLogs.filter((log) => Number(log.profit) === 0);
+  const losses = scopedLogs.filter((log) => Number(log.profit) < 0);
   const avgWin = wins.length ? sumProfit(wins) / wins.length : 0;
   const avgLoss = losses.length ? sumProfit(losses) / losses.length : 0;
 
-  setMoneyText(els.avgWinValue, Math.round(avgWin));
-  setMoneyText(els.avgLossValue, Math.round(avgLoss));
+  setMoneyText(els.avgWinValue, Math.round(avgWin), state.analyticsCurrency);
+  setMoneyText(els.avgLossValue, Math.round(avgLoss), state.analyticsCurrency);
 
   const tickerMap = new Map();
   const strategyMap = new Map();
-  state.logs.forEach((log) => {
+  scopedLogs.forEach((log) => {
     tickerMap.set(log.ticker, (tickerMap.get(log.ticker) || 0) + Number(log.profit || 0));
     strategyMap.set(log.strategy, (strategyMap.get(log.strategy) || 0) + 1);
   });
@@ -578,11 +559,11 @@ function renderAnalytics() {
   const bestTicker = [...tickerMap.entries()].sort((a, b) => b[1] - a[1])[0];
   const bestStrategy = [...strategyMap.entries()].sort((a, b) => b[1] - a[1])[0];
 
-  els.bestTickerValue.textContent = bestTicker ? `${bestTicker[0]} ${formatMoney(bestTicker[1])}` : "-";
+  els.bestTickerValue.textContent = bestTicker ? `${bestTicker[0]} ${formatMoney(bestTicker[1], state.analyticsCurrency)}` : "-";
   els.bestStrategyValue.textContent = bestStrategy ? `${bestStrategy[0]} · ${bestStrategy[1]}건` : "-";
 
   renderDonutChart(wins.length, draws.length, losses.length);
-  renderCurveChart();
+  renderCurveChart(scopedLogs);
   setAnalyticsSlide(state.analyticsSlide, false);
 }
 
@@ -602,17 +583,17 @@ function renderDonutChart(winCount, drawCount, lossCount) {
 
   const winRate = total ? ((winCount / total) * 100).toFixed(1) : "0.0";
   els.analyticsWinRate.textContent = `${winRate}%`;
-  els.analyticsWinMeta.textContent = `WIN ${winCount}건 · DRAW ${drawCount}건 · LOSS ${lossCount}건`;
+  els.analyticsWinMeta.textContent = `${state.analyticsCurrency} 기준 · WIN ${winCount}건 · DRAW ${drawCount}건 · LOSS ${lossCount}건`;
   els.donutCenterValue.textContent = `${winRate}%`;
 }
 
-function renderCurveChart() {
-  if (!state.logs.length) {
-    els.curveHeadline.textContent = "₩0";
-    els.curveMeta.textContent = "총 자산 변화 기준";
+function renderCurveChart(scopedLogs) {
+  if (!scopedLogs.length) {
+    els.curveHeadline.textContent = formatMoney(0, state.analyticsCurrency);
+    els.curveMeta.textContent = `${state.analyticsCurrency} 기준 총 자산 변화`;
     els.curveRange.textContent = "기간 · --.--.-- - --.--.--";
-    els.curveNetProfit.textContent = "₩0";
-    els.curvePeakCapital.textContent = formatMoney(state.startingCapital);
+    els.curveNetProfit.textContent = formatMoney(0, state.analyticsCurrency);
+    els.curvePeakCapital.textContent = formatMoney(state.analyticsCurrency === "KRW" ? state.startingCapital : 0, state.analyticsCurrency);
     els.curveGuides.innerHTML = "";
     els.curveBaseline.setAttribute("x1", "0");
     els.curveBaseline.setAttribute("x2", "0");
@@ -629,7 +610,8 @@ function renderCurveChart() {
     return;
   }
 
-  const byDate = [...state.logs]
+  const seedBase = state.analyticsCurrency === "KRW" ? state.startingCapital : 0;
+  const byDate = [...scopedLogs]
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .reduce((acc, log) => {
       const last = acc[acc.length - 1];
@@ -644,7 +626,7 @@ function renderCurveChart() {
     }, [])
     .map((item, index, array) => ({
       date: item.date,
-      value: array.slice(0, index + 1).reduce((sum, current) => sum + current.value, 0) + state.startingCapital
+      value: array.slice(0, index + 1).reduce((sum, current) => sum + current.value, 0) + seedBase
     }));
 
   const values = byDate.map((item) => item.value);
@@ -667,7 +649,7 @@ function renderCurveChart() {
     .join(" ");
   const area = `${path} L ${points[points.length - 1].x.toFixed(2)} ${height - paddingY} L ${points[0].x.toFixed(2)} ${height - paddingY} Z`;
 
-  const baselineY = height - paddingY - ((state.startingCapital - minValue) / range) * (height - paddingY * 2);
+  const baselineY = height - paddingY - ((seedBase - minValue) / range) * (height - paddingY * 2);
   const guides = [0, 0.5, 1]
     .map((ratio) => {
       const y = (paddingY + (height - paddingY * 2) * ratio).toFixed(2);
@@ -696,11 +678,11 @@ function renderCurveChart() {
     .map((label) => `<span>${label}</span>`)
     .join("");
 
-  els.curveHeadline.textContent = formatMoney(values[values.length - 1]);
-  els.curveMeta.textContent = "총 자산 변화 기준";
+  els.curveHeadline.textContent = formatMoney(values[values.length - 1], state.analyticsCurrency);
+  els.curveMeta.textContent = `${state.analyticsCurrency} 기준 총 자산 변화`;
   els.curveRange.textContent = `기간 · ${formatShortDateWithYear(byDate[0].date)} - ${formatShortDateWithYear(byDate[byDate.length - 1].date)}`;
-  els.curveNetProfit.textContent = formatMoney(values[values.length - 1] - state.startingCapital);
-  els.curvePeakCapital.textContent = formatMoney(Math.max(...values));
+  els.curveNetProfit.textContent = formatMoney(values[values.length - 1] - seedBase, state.analyticsCurrency);
+  els.curvePeakCapital.textContent = formatMoney(Math.max(...values), state.analyticsCurrency);
 }
 
 function setAnalyticsSlide(index, scroll = true) {
@@ -745,12 +727,12 @@ function renderTradeTable() {
             <td>
               <div class="ticker-cell">
                 <span class="ticker-name">${escapeHtml(log.stockName)}</span>
-                <span class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</span>
+                <span class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)} · ${normalizeCurrency(log.currency)}</span>
               </div>
             </td>
             <td><span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span></td>
             <td>${escapeHtml(log.strategy)}</td>
-            <td><span class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</span></td>
+            <td><span class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit, log.currency)}</span></td>
             <td>${formatPercent(log.profitRate)}</td>
             <td>
               <div class="row-actions">
@@ -783,9 +765,9 @@ function renderTradeTable() {
             <div class="mobile-card-head">
               <div>
                 <div class="ticker-name">${escapeHtml(log.stockName)}</div>
-                <div class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</div>
+                <div class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)} · ${normalizeCurrency(log.currency)}</div>
               </div>
-              <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
+              <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit, log.currency)}</strong>
             </div>
             <div class="mobile-card-meta">
               <span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span>
@@ -827,6 +809,7 @@ function startEdit(id) {
   state.editingId = id;
   els.tradeDate.value = log.date;
   els.market.value = log.market;
+  els.currency.value = normalizeCurrency(log.currency);
   els.stockName.value = log.stockName;
   els.ticker.value = log.ticker;
   els.tradeType.value = log.tradeType;
@@ -920,6 +903,7 @@ function importLogs(event) {
           tax: Number(item.tax) || 0,
           profit: Number(item.profit) || 0,
           profitRate: Number(item.profitRate) || 0,
+          currency: normalizeCurrency(item.currency),
           createdAt: item.createdAt || new Date().toISOString()
         }));
 
@@ -941,9 +925,10 @@ function importLogs(event) {
 function buildDailyAggregateMap(logs) {
   return logs.reduce((acc, log) => {
     if (!acc[log.date]) {
-      acc[log.date] = { profit: 0, count: 0 };
+      acc[log.date] = { profit: { KRW: 0, USD: 0 }, count: 0 };
     }
-    acc[log.date].profit += Number(log.profit || 0);
+    const currency = normalizeCurrency(log.currency);
+    acc[log.date].profit[currency] += Number(log.profit || 0);
     acc[log.date].count += 1;
     return acc;
   }, {});
@@ -951,7 +936,11 @@ function buildDailyAggregateMap(logs) {
 
 function buildDailyProfitMap(logs) {
   return logs.reduce((acc, log) => {
-    acc[log.date] = (acc[log.date] || 0) + Number(log.profit || 0);
+    if (!acc[log.date]) {
+      acc[log.date] = { KRW: 0, USD: 0 };
+    }
+    const currency = normalizeCurrency(log.currency);
+    acc[log.date][currency] += Number(log.profit || 0);
     return acc;
   }, {});
 }
@@ -960,16 +949,30 @@ function sumProfit(logs) {
   return logs.reduce((sum, log) => sum + Number(log.profit || 0), 0);
 }
 
-function setMoneyText(element, value) {
-  element.textContent = formatMoney(value);
+function setMoneyText(element, value, currency = "KRW") {
+  element.textContent = formatMoney(value, currency);
   element.classList.remove("profit", "loss", "neutral");
   element.classList.add(getProfitClass(value));
 }
 
-function formatMoney(value) {
+function setMoneyMapText(element, moneyMap, options = {}) {
+  element.innerHTML = formatMoneyMap(moneyMap, options);
+}
+
+function setPercentMapText(element, percentMap) {
+  const parts = ["KRW", "USD"]
+    .filter((currency) => percentMap[currency] !== null)
+    .map((currency) => `<span class="money-line">${currency} ${formatPercent(percentMap[currency])}</span>`);
+  element.innerHTML = parts.length ? `<span class="money-stack">${parts.join("")}</span>` : "0%";
+}
+
+function formatMoney(value, currency = "KRW") {
   const amount = Number(value || 0);
   const sign = amount > 0 ? "+" : "";
-  return `${sign}₩${Math.round(amount).toLocaleString("ko-KR")}`;
+  const normalized = normalizeCurrency(currency);
+  const symbol = normalized === "USD" ? "$" : "₩";
+  const locale = normalized === "USD" ? "en-US" : "ko-KR";
+  return `${sign}${symbol}${Math.round(amount).toLocaleString(locale)}`;
 }
 
 function formatPercent(value) {
@@ -982,6 +985,83 @@ function getProfitClass(value) {
   if (Number(value) > 0) return "profit";
   if (Number(value) < 0) return "loss";
   return "neutral";
+}
+
+function normalizeCurrency(currency) {
+  return currency === "USD" ? "USD" : "KRW";
+}
+
+function sumProfitByCurrency(logs) {
+  return logs.reduce(
+    (acc, log) => {
+      const currency = normalizeCurrency(log.currency);
+      acc[currency] += Number(log.profit || 0);
+      return acc;
+    },
+    { KRW: 0, USD: 0 }
+  );
+}
+
+function getCumulativeRateByCurrency(logs) {
+  const invested = { KRW: 0, USD: 0 };
+  const profit = sumProfitByCurrency(logs);
+  logs.forEach((log) => {
+    const currency = normalizeCurrency(log.currency);
+    invested[currency] += Number(log.buyPrice) * Number(log.quantity) || 0;
+  });
+  return {
+    KRW: invested.KRW ? (profit.KRW / invested.KRW) * 100 : null,
+    USD: invested.USD ? (profit.USD / invested.USD) * 100 : null
+  };
+}
+
+function formatMoneyMap(moneyMap, options = {}) {
+  const { compact = false, small = false } = options;
+  const className = small ? "money-line-small" : "money-line";
+  const currencies = ["KRW", "USD"].filter((currency) => Number(moneyMap[currency] || 0) !== 0);
+  const visibleCurrencies = currencies.length ? currencies : ["KRW"];
+  const parts = visibleCurrencies.map((currency) => {
+    const prefix = compact || small ? `${currency} ` : "";
+    return `<span class="${className}">${prefix}${formatMoney(moneyMap[currency] || 0, currency)}</span>`;
+  });
+  return compact || parts.length > 1 ? `<span class="money-stack">${parts.join("")}</span>` : parts[0];
+}
+
+function getPrimaryProfitValue(moneyMap) {
+  if (Number(moneyMap.KRW || 0) !== 0) return Number(moneyMap.KRW || 0);
+  return Number(moneyMap.USD || 0);
+}
+
+function formatBestWorstByCurrency(entries, mode) {
+  const parts = ["KRW", "USD"]
+    .map((currency) => {
+      const target = entries.filter(([, value]) =>
+        mode === "best" ? Number(value[currency] || 0) > 0 : Number(value[currency] || 0) < 0
+      );
+      if (!target.length) return "";
+      const picked = target.reduce((acc, entry) => {
+        const currentValue = Number(entry[1][currency] || 0);
+        const accValue = Number(acc[1][currency] || 0);
+        return mode === "best"
+          ? (currentValue > accValue ? entry : acc)
+          : (currentValue < accValue ? entry : acc);
+      }, target[0]);
+      return `<span class="money-line-small">${currency} ${picked[0].slice(8)}일 ${formatMoney(picked[1][currency], currency)}</span>`;
+    })
+    .filter(Boolean);
+  return parts.length ? `<span class="money-stack">${parts.join("")}</span>` : "";
+}
+
+function formatAverageByCurrency(entries) {
+  const parts = ["KRW", "USD"]
+    .map((currency) => {
+      const values = entries.map(([, value]) => Number(value[currency] || 0)).filter((value) => value !== 0);
+      if (!values.length) return "";
+      const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+      return `<span class="money-line-small">${currency} ${formatMoney(Math.round(average), currency)}</span>`;
+    })
+    .filter(Boolean);
+  return parts.length ? `<span class="money-stack">${parts.join("")}</span>` : "₩0";
 }
 
 function formatDateInput(date) {
