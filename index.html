@@ -94,163 +94,9 @@
         </article>
       </section>
 
-      <section class="workspace-grid">
-        <section class="form-card glass-card" id="formCard">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">Trade Entry</p>
-              <h2>주식 매매 기록</h2>
-            </div>
-            <div class="form-tools">
-              <button id="formPopupClose" class="ghost-button popup-close-button" type="button">닫기</button>
-              <button id="mobileFormToggle" class="ghost-button mobile-only" type="button">기록 입력 열기</button>
-              <button id="resetFormBtn" class="ghost-button" type="button">입력 초기화</button>
-            </div>
-          </div>
-
-          <form id="tradeForm" class="trade-form">
-            <div class="form-row two-col">
-              <label>
-                <span>거래일</span>
-                <input type="date" id="tradeDate" required>
-              </label>
-              <label>
-                <span>시장</span>
-                <select id="market">
-                  <option value="KOSPI">KOSPI</option>
-                  <option value="KOSDAQ">KOSDAQ</option>
-                  <option value="NASDAQ">NASDAQ</option>
-                  <option value="NYSE">NYSE</option>
-                  <option value="ETF">ETF</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="form-row two-col">
-              <label>
-                <span>종목명</span>
-                <input type="text" id="stockName" placeholder="예: 삼성전자" required>
-              </label>
-              <label>
-                <span>티커</span>
-                <input type="text" id="ticker" placeholder="예: 005930 / AAPL">
-              </label>
-            </div>
-
-            <div class="form-row three-col">
-              <label>
-                <span>거래 유형</span>
-                <select id="tradeType">
-                  <option value="BUY">매수</option>
-                  <option value="SELL">매도</option>
-                  <option value="PARTIAL_SELL">부분매도</option>
-                  <option value="FULL_SELL">전량매도</option>
-                </select>
-              </label>
-              <label>
-                <span>수량</span>
-                <input type="number" id="quantity" min="0" step="1" placeholder="10" required>
-              </label>
-              <label>
-                <span>전략</span>
-                <select id="strategy">
-                  <option value="돌파매매">돌파매매</option>
-                  <option value="추세추종">추세추종</option>
-                  <option value="눌림목">눌림목</option>
-                  <option value="스윙">스윙</option>
-                  <option value="단타">단타</option>
-                  <option value="가치투자">가치투자</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="form-row four-col">
-              <label>
-                <span>매수 단가</span>
-                <input type="number" id="buyPrice" min="0" step="0.01" placeholder="71000" required>
-              </label>
-              <label>
-                <span>매도 단가</span>
-                <input type="number" id="sellPrice" min="0" step="0.01" placeholder="72800">
-              </label>
-              <label>
-                <span>수수료</span>
-                <input type="number" id="fees" min="0" step="1" placeholder="1500">
-              </label>
-              <label>
-                <span>세금</span>
-                <input type="number" id="tax" min="0" step="1" placeholder="300">
-              </label>
-            </div>
-
-            <div class="form-row three-col">
-              <label>
-                <span>실현손익</span>
-                <input type="number" id="profit" step="1" placeholder="자동 계산됨">
-              </label>
-              <label>
-                <span>수익률(%)</span>
-                <input type="number" id="profitRate" step="0.01" placeholder="자동 계산됨">
-              </label>
-              <label>
-                <span>심리 상태</span>
-                <select id="mood">
-                  <option value="침착">침착</option>
-                  <option value="집중">집중</option>
-                  <option value="조급">조급</option>
-                  <option value="불안">불안</option>
-                  <option value="확신">확신</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="tag-row">
-              <span>전략 태그</span>
-              <div class="tag-options" id="tagOptions">
-                <button type="button" class="tag-chip active" data-tag="실적">실적</button>
-                <button type="button" class="tag-chip" data-tag="돌파">돌파</button>
-                <button type="button" class="tag-chip" data-tag="갭상승">갭상승</button>
-                <button type="button" class="tag-chip" data-tag="리버설">리버설</button>
-                <button type="button" class="tag-chip" data-tag="분할매수">분할매수</button>
-                <button type="button" class="tag-chip" data-tag="뉴스">뉴스</button>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <label>
-                <span>진입 근거</span>
-                <textarea id="reason" rows="3" placeholder="왜 이 거래를 했는지 기록해보세요."></textarea>
-              </label>
-            </div>
-
-            <div class="form-row">
-              <label>
-                <span>복기 메모</span>
-                <textarea id="memo" rows="4" placeholder="잘한 점, 아쉬운 점, 다음에 지킬 원칙을 적어보세요."></textarea>
-              </label>
-            </div>
-
-            <div class="form-row two-col">
-              <label>
-                <span>차트 이미지 URL</span>
-                <input type="url" id="imageUrl" placeholder="https://...">
-              </label>
-              <label class="autocalc">
-                <span>자동 계산</span>
-                <div class="toggle-line">
-                  <input type="checkbox" id="autoCalc" checked>
-                  <small>가격/수량 기준으로 손익 자동 계산</small>
-                </div>
-              </label>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="primary-button" id="submitButton">거래 저장</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="calendar-card glass-card">
+      <section class="workspace-card glass-card">
+        <div class="workspace-grid">
+        <section class="calendar-card" id="calendarCard">
           <div class="section-heading">
             <div>
               <p class="section-kicker">Daily P&amp;L Calendar</p>
@@ -268,36 +114,195 @@
 
           <div class="calendar-weekdays" id="calendarWeekdays"></div>
           <div class="calendar-grid" id="calendarGrid"></div>
-
-          <div class="calendar-summary">
-            <div>
-              <span>가장 많이 번 날</span>
-              <strong id="bestDayValue">없음</strong>
-            </div>
-            <div>
-              <span>가장 크게 잃은 날</span>
-              <strong id="worstDayValue">없음</strong>
-            </div>
-            <div>
-              <span>하루 평균 손익</span>
-              <strong id="avgDayValue">₩0</strong>
-            </div>
-          </div>
-
-          <div class="day-detail" id="dayDetail">
-            <div class="day-detail-header">
-              <div>
-                <p class="section-kicker">Daily Review</p>
-                <h3 id="detailTitle">날짜를 선택해보세요</h3>
-              </div>
-              <span class="detail-profit neutral" id="detailProfit">₩0</span>
-            </div>
-            <p class="detail-meta" id="detailMeta">달력에서 날짜를 누르면 그날의 거래와 메모를 볼 수 있어요.</p>
-            <div id="detailTrades" class="detail-trades empty-detail">
-              아직 선택된 날짜가 없습니다.
-            </div>
-          </div>
         </section>
+
+        <aside class="workspace-side">
+          <section class="review-panel" id="reviewPanel">
+            <div class="calendar-summary side-summary">
+              <div>
+                <span>가장 많이 번 날</span>
+                <strong id="bestDayValue">없음</strong>
+              </div>
+              <div>
+                <span>가장 크게 잃은 날</span>
+                <strong id="worstDayValue">없음</strong>
+              </div>
+              <div>
+                <span>하루 평균 손익</span>
+                <strong id="avgDayValue">₩0</strong>
+              </div>
+            </div>
+
+            <div class="day-detail side-detail" id="dayDetail">
+              <div class="day-detail-header">
+                <div>
+                  <p class="section-kicker">Daily Review</p>
+                  <h3 id="detailTitle">날짜를 선택해보세요</h3>
+                </div>
+                <span class="detail-profit neutral" id="detailProfit">₩0</span>
+              </div>
+              <p class="detail-meta" id="detailMeta">달력에서 날짜를 누르면 그날의 거래와 메모를 볼 수 있어요.</p>
+              <div id="detailTrades" class="detail-trades empty-detail">
+                아직 선택된 날짜가 없습니다.
+              </div>
+            </div>
+          </section>
+
+          <section class="entry-panel" id="formCard" hidden>
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Trade Entry</p>
+                <h2>주식 매매 기록</h2>
+              </div>
+              <div class="form-tools">
+                <button id="formPopupClose" class="ghost-button" type="button">취소</button>
+                <button id="resetFormBtn" class="ghost-button" type="button">입력 초기화</button>
+              </div>
+            </div>
+
+            <form id="tradeForm" class="trade-form">
+              <div class="form-row two-col">
+                <label>
+                  <span>거래일</span>
+                  <input type="date" id="tradeDate" required>
+                </label>
+                <label>
+                  <span>시장</span>
+                  <select id="market">
+                    <option value="KOSPI">KOSPI</option>
+                    <option value="KOSDAQ">KOSDAQ</option>
+                    <option value="NASDAQ">NASDAQ</option>
+                    <option value="NYSE">NYSE</option>
+                    <option value="ETF">ETF</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-row two-col">
+                <label>
+                  <span>종목명</span>
+                  <input type="text" id="stockName" placeholder="예: 삼성전자" required>
+                </label>
+                <label>
+                  <span>티커</span>
+                  <input type="text" id="ticker" placeholder="예: 005930 / AAPL">
+                </label>
+              </div>
+
+              <div class="form-row three-col">
+                <label>
+                  <span>거래 유형</span>
+                  <select id="tradeType">
+                    <option value="BUY">매수</option>
+                    <option value="SELL">매도</option>
+                    <option value="PARTIAL_SELL">부분매도</option>
+                    <option value="FULL_SELL">전량매도</option>
+                  </select>
+                </label>
+                <label>
+                  <span>수량</span>
+                  <input type="number" id="quantity" min="0" step="1" placeholder="10" required>
+                </label>
+                <label>
+                  <span>전략</span>
+                  <select id="strategy">
+                    <option value="돌파매매">돌파매매</option>
+                    <option value="추세추종">추세추종</option>
+                    <option value="눌림목">눌림목</option>
+                    <option value="스윙">스윙</option>
+                    <option value="단타">단타</option>
+                    <option value="가치투자">가치투자</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-row four-col">
+                <label>
+                  <span>매수 단가</span>
+                  <input type="number" id="buyPrice" min="0" step="0.01" placeholder="71000" required>
+                </label>
+                <label>
+                  <span>매도 단가</span>
+                  <input type="number" id="sellPrice" min="0" step="0.01" placeholder="72800">
+                </label>
+                <label>
+                  <span>수수료</span>
+                  <input type="number" id="fees" min="0" step="1" placeholder="1500">
+                </label>
+                <label>
+                  <span>세금</span>
+                  <input type="number" id="tax" min="0" step="1" placeholder="300">
+                </label>
+              </div>
+
+              <div class="form-row three-col">
+                <label>
+                  <span>실현손익</span>
+                  <input type="number" id="profit" step="1" placeholder="자동 계산됨">
+                </label>
+                <label>
+                  <span>수익률(%)</span>
+                  <input type="number" id="profitRate" step="0.01" placeholder="자동 계산됨">
+                </label>
+                <label>
+                  <span>심리 상태</span>
+                  <select id="mood">
+                    <option value="침착">침착</option>
+                    <option value="집중">집중</option>
+                    <option value="조급">조급</option>
+                    <option value="불안">불안</option>
+                    <option value="확신">확신</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="tag-row">
+                <span>전략 태그</span>
+                <div class="tag-options" id="tagOptions">
+                  <button type="button" class="tag-chip active" data-tag="실적">실적</button>
+                  <button type="button" class="tag-chip" data-tag="돌파">돌파</button>
+                  <button type="button" class="tag-chip" data-tag="갭상승">갭상승</button>
+                  <button type="button" class="tag-chip" data-tag="리버설">리버설</button>
+                  <button type="button" class="tag-chip" data-tag="분할매수">분할매수</button>
+                  <button type="button" class="tag-chip" data-tag="뉴스">뉴스</button>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <span>진입 근거</span>
+                  <textarea id="reason" rows="3" placeholder="왜 이 거래를 했는지 기록해보세요."></textarea>
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <span>복기 메모</span>
+                  <textarea id="memo" rows="4" placeholder="잘한 점, 아쉬운 점, 다음에 지킬 원칙을 적어보세요."></textarea>
+                </label>
+              </div>
+
+              <div class="form-row two-col">
+                <label>
+                  <span>차트 이미지 URL</span>
+                  <input type="url" id="imageUrl" placeholder="https://...">
+                </label>
+                <label class="autocalc">
+                  <span>자동 계산</span>
+                  <div class="toggle-line">
+                    <input type="checkbox" id="autoCalc" checked>
+                    <small>가격/수량 기준으로 손익 자동 계산</small>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="primary-button" id="submitButton">거래 저장</button>
+              </div>
+            </form>
+          </section>
+        </aside>
+        </div>
       </section>
 
       <section class="bottom-grid">

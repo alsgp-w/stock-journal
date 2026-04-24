@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function cacheElements() {
   const ids = [
     "formCard",
+    "reviewPanel",
     "formOverlay",
     "formPopupClose",
     "capitalForm",
@@ -108,23 +109,23 @@ function initializeWeekdays() {
 }
 
 function bindEvents() {
-  els.formOverlay.addEventListener("click", closeTradePopup);
-  els.formPopupClose.addEventListener("click", closeTradePopup);
+  els.formOverlay?.addEventListener("click", closeTradePopup);
+  els.formPopupClose?.addEventListener("click", closeTradePopup);
   els.capitalForm.addEventListener("submit", handleCapitalSubmit);
   els.tradeForm.addEventListener("submit", handleSubmit);
-  els.mobileFormToggle.addEventListener("click", toggleMobileForm);
+  els.mobileFormToggle?.addEventListener("click", toggleMobileForm);
   els.calendarQuickAdd.addEventListener("click", () => openTradePopup(state.selectedDate || formatDateInput(new Date())));
   els.resetFormBtn.addEventListener("click", resetForm);
   els.prevMonthBtn.addEventListener("click", () => moveMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => moveMonth(1));
-  els.searchInput.addEventListener("input", (event) => {
+  els.searchInput?.addEventListener("input", (event) => {
     state.searchQuery = event.target.value.trim().toLowerCase();
     renderTradeTable();
   });
-  els.exportBtn.addEventListener("click", exportLogs);
-  els.importBtn.addEventListener("click", () => els.importFileInput.click());
-  els.importFileInput.addEventListener("change", importLogs);
-  els.clearAllBtn.addEventListener("click", clearAllLogs);
+  els.exportBtn?.addEventListener("click", exportLogs);
+  els.importBtn?.addEventListener("click", () => els.importFileInput.click());
+  els.importFileInput?.addEventListener("change", importLogs);
+  els.clearAllBtn?.addEventListener("click", clearAllLogs);
 
   [els.quantity, els.buyPrice, els.sellPrice, els.fees, els.tax].forEach((input) => {
     input.addEventListener("input", handleAutoCalculation);
@@ -144,6 +145,7 @@ function bindEvents() {
 }
 
 function toggleMobileForm() {
+  if (!els.mobileFormToggle) return;
   els.formCard.classList.toggle("mobile-open");
   const isOpen = els.formCard.classList.contains("mobile-open");
   els.mobileFormToggle.textContent = isOpen ? "기록 입력 닫기" : "기록 입력 열기";
@@ -153,16 +155,14 @@ function openTradePopup(date = null) {
   if (date) {
     els.tradeDate.value = date;
   }
-  els.formCard.classList.add("popup-open");
-  els.formOverlay.classList.add("active");
-  document.body.style.overflow = "hidden";
+  if (els.reviewPanel) els.reviewPanel.hidden = true;
+  els.formCard.hidden = false;
   els.stockName.focus();
 }
 
 function closeTradePopup() {
-  els.formCard.classList.remove("popup-open");
-  els.formOverlay.classList.remove("active");
-  document.body.style.overflow = "";
+  els.formCard.hidden = true;
+  if (els.reviewPanel) els.reviewPanel.hidden = false;
 }
 
 function handleCapitalSubmit(event) {
@@ -352,6 +352,7 @@ function syncCapitalFormState() {
 }
 
 function render() {
+  closeTradePopup();
   renderSummary();
   renderCalendar();
   renderAnalytics();
@@ -555,93 +556,101 @@ function renderTradeTable() {
   });
 
   if (!filtered.length) {
-    els.tradeTableBody.innerHTML = `
-      <tr>
-        <td colspan="7" class="empty-row">검색 결과가 없어요.</td>
-      </tr>
-    `;
-    els.mobileTradeList.innerHTML = `<div class="empty-row">검색 결과가 없어요.</div>`;
+    if (els.tradeTableBody) {
+      els.tradeTableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty-row">검색 결과가 없어요.</td>
+        </tr>
+      `;
+    }
+    if (els.mobileTradeList) {
+      els.mobileTradeList.innerHTML = `<div class="empty-row">검색 결과가 없어요.</div>`;
+    }
     return;
   }
 
-  els.tradeTableBody.innerHTML = filtered
-    .map(
-      (log) => `
-        <tr>
-          <td>${log.date}</td>
-          <td>
-            <div class="ticker-cell">
-              <span class="ticker-name">${escapeHtml(log.stockName)}</span>
-              <span class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</span>
-            </div>
-          </td>
-          <td><span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span></td>
-          <td>${escapeHtml(log.strategy)}</td>
-          <td><span class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</span></td>
-          <td>${formatPercent(log.profitRate)}</td>
-          <td>
-            <div class="row-actions">
-              <button type="button" data-action="edit" data-id="${log.id}">수정</button>
-              <button type="button" data-action="delete" data-id="${log.id}">삭제</button>
-            </div>
-          </td>
-        </tr>
-      `
-    )
-    .join("");
+  if (els.tradeTableBody) {
+    els.tradeTableBody.innerHTML = filtered
+      .map(
+        (log) => `
+          <tr>
+            <td>${log.date}</td>
+            <td>
+              <div class="ticker-cell">
+                <span class="ticker-name">${escapeHtml(log.stockName)}</span>
+                <span class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</span>
+              </div>
+            </td>
+            <td><span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span></td>
+            <td>${escapeHtml(log.strategy)}</td>
+            <td><span class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</span></td>
+            <td>${formatPercent(log.profitRate)}</td>
+            <td>
+              <div class="row-actions">
+                <button type="button" data-action="edit" data-id="${log.id}">수정</button>
+                <button type="button" data-action="delete" data-id="${log.id}">삭제</button>
+              </div>
+            </td>
+          </tr>
+        `
+      )
+      .join("");
 
-  els.tradeTableBody.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => {
-      const id = Number(button.dataset.id);
-      if (button.dataset.action === "edit") {
-        startEdit(id);
-      } else {
-        deleteLog(id);
-      }
+    els.tradeTableBody.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = Number(button.dataset.id);
+        if (button.dataset.action === "edit") {
+          startEdit(id);
+        } else {
+          deleteLog(id);
+        }
+      });
     });
-  });
+  }
 
-  els.mobileTradeList.innerHTML = filtered
-    .map(
-      (log) => `
-        <article class="mobile-trade-card">
-          <div class="mobile-card-head">
-            <div>
-              <div class="ticker-name">${escapeHtml(log.stockName)}</div>
-              <div class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</div>
+  if (els.mobileTradeList) {
+    els.mobileTradeList.innerHTML = filtered
+      .map(
+        (log) => `
+          <article class="mobile-trade-card">
+            <div class="mobile-card-head">
+              <div>
+                <div class="ticker-name">${escapeHtml(log.stockName)}</div>
+                <div class="ticker-code">${log.ticker ? `${escapeHtml(log.ticker)} · ` : ""}${escapeHtml(log.market)}</div>
+              </div>
+              <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
             </div>
-            <strong class="profit-text ${getProfitClass(log.profit)}">${formatMoney(log.profit)}</strong>
-          </div>
-          <div class="mobile-card-meta">
-            <span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span>
-            <span class="pill">${escapeHtml(log.strategy)}</span>
-          </div>
-          <div class="mobile-card-grid">
-            <div><span>날짜</span><strong>${log.date}</strong></div>
-            <div><span>수익률</span><strong>${formatPercent(log.profitRate)}</strong></div>
-          </div>
-          <div class="mobile-card-foot">
-            <div class="detail-sub">${log.reason ? escapeHtml(log.reason).slice(0, 50) : "기록 메모 없음"}</div>
-            <div class="row-actions">
-              <button type="button" data-action="edit" data-id="${log.id}">수정</button>
-              <button type="button" data-action="delete" data-id="${log.id}">삭제</button>
+            <div class="mobile-card-meta">
+              <span class="pill ${tradeTypeClass(log.tradeType)}">${tradeTypeLabel(log.tradeType)}</span>
+              <span class="pill">${escapeHtml(log.strategy)}</span>
             </div>
-          </div>
-        </article>
-      `
-    )
-    .join("");
+            <div class="mobile-card-grid">
+              <div><span>날짜</span><strong>${log.date}</strong></div>
+              <div><span>수익률</span><strong>${formatPercent(log.profitRate)}</strong></div>
+            </div>
+            <div class="mobile-card-foot">
+              <div class="detail-sub">${log.reason ? escapeHtml(log.reason).slice(0, 50) : "기록 메모 없음"}</div>
+              <div class="row-actions">
+                <button type="button" data-action="edit" data-id="${log.id}">수정</button>
+                <button type="button" data-action="delete" data-id="${log.id}">삭제</button>
+              </div>
+            </div>
+          </article>
+        `
+      )
+      .join("");
 
-  els.mobileTradeList.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => {
-      const id = Number(button.dataset.id);
-      if (button.dataset.action === "edit") {
-        startEdit(id);
-      } else {
-        deleteLog(id);
-      }
+    els.mobileTradeList.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = Number(button.dataset.id);
+        if (button.dataset.action === "edit") {
+          startEdit(id);
+        } else {
+          deleteLog(id);
+        }
+      });
     });
-  });
+  }
 }
 
 function startEdit(id) {
@@ -671,10 +680,8 @@ function startEdit(id) {
     chip.classList.toggle("active", chip.dataset.tag === state.activeTag);
   });
   els.submitButton.textContent = "수정 완료";
-  if (window.innerWidth <= 820) {
-    els.formCard.classList.add("mobile-open");
-    els.mobileFormToggle.textContent = "기록 입력 닫기";
-  }
+  if (els.reviewPanel) els.reviewPanel.hidden = true;
+  els.formCard.hidden = false;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
