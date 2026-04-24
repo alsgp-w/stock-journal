@@ -89,6 +89,7 @@ function cacheElements() {
     "startingCapitalValue",
     "currentCapitalValue",
     "startingCapitalInput",
+    "capitalInputWrap",
     "capitalSubmitButton",
     "tagOptions"
   ];
@@ -144,8 +145,8 @@ function toggleMobileForm() {
 
 function handleCapitalSubmit(event) {
   event.preventDefault();
-  if (state.hasSavedCapital && els.startingCapitalInput.disabled) {
-    els.startingCapitalInput.disabled = false;
+  if (state.hasSavedCapital && els.capitalForm.classList.contains("is-collapsed")) {
+    els.capitalForm.classList.remove("is-collapsed");
     els.startingCapitalInput.focus();
     els.capitalSubmitButton.textContent = "저장";
     return;
@@ -322,7 +323,8 @@ function persistSettings() {
 
 function syncCapitalFormState() {
   const locked = state.hasSavedCapital;
-  els.startingCapitalInput.disabled = locked;
+  els.startingCapitalInput.disabled = false;
+  els.capitalForm.classList.toggle("is-collapsed", locked);
   els.capitalSubmitButton.textContent = locked ? "수정" : "저장";
 }
 
