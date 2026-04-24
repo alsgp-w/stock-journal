@@ -637,7 +637,7 @@ textarea {
 }
 
 .side-summary {
-  margin-top: 0;
+  margin: 0 0 14px;
 }
 
 .calendar-summary > div,
@@ -661,6 +661,55 @@ textarea {
   margin-top: 8px;
   font-size: 1.06rem;
   letter-spacing: -0.03em;
+}
+
+.review-stat-card {
+  min-height: 112px;
+  display: grid;
+  align-content: start;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.88)),
+    linear-gradient(135deg, rgba(37, 99, 235, 0.03), rgba(15, 23, 42, 0));
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.review-stat-card span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.review-stat-card strong {
+  margin-top: 10px;
+  font-size: clamp(0.96rem, 1.15vw, 1.08rem);
+  line-height: 1.25;
+}
+
+.summary-split-date,
+.summary-split-amount {
+  display: block;
+}
+
+.summary-split-date {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #475569;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.summary-split-amount {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  font-size: clamp(0.94rem, 1.1vw, 1.04rem);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.22;
+  overflow-wrap: anywhere;
 }
 
 .day-detail {
@@ -714,7 +763,7 @@ textarea {
 
 .detail-trades {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .side-detail .detail-trades {
@@ -726,8 +775,10 @@ textarea {
 
 .detail-trade-item {
   display: grid;
-  gap: 8px;
-  padding: 16px;
+  gap: 6px;
+  padding: 12px 14px;
+  min-height: 132px;
+  align-content: start;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(148, 163, 184, 0.12);
@@ -777,6 +828,8 @@ textarea {
 .analytics-slide {
   display: none;
   gap: 18px;
+  min-height: 560px;
+  align-content: start;
 }
 
 .analytics-slide.active {
@@ -909,29 +962,157 @@ textarea {
   margin-bottom: 16px;
 }
 
+.curve-copy {
+  min-width: 0;
+}
+
+.curve-copy strong {
+  white-space: nowrap;
+}
+
+.curve-copy-meta {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.curve-copy-meta p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.curve-topline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.curve-metric-card {
+  min-height: 106px;
+  display: grid;
+  align-content: start;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.9)),
+    linear-gradient(135deg, rgba(37, 99, 235, 0.04), rgba(15, 23, 42, 0));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.curve-metric-card span {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.curve-metric-card strong {
+  margin-top: 10px;
+  font-size: clamp(0.96rem, 1.2vw, 1.12rem);
+  line-height: 1.24;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
 .curve-card {
-  min-height: 280px;
+  min-height: 344px;
+  height: 344px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.88)),
+    linear-gradient(135deg, rgba(37, 99, 235, 0.04), rgba(15, 23, 42, 0));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.curve-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.curve-card-label,
+.curve-card-caption {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.curve-card-label {
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.curve-card-caption {
+  color: var(--muted);
 }
 
 .curve-chart {
   width: 100%;
   height: 260px;
+  padding: 4px 0;
 }
 
 .curve-area {
-  fill: rgba(37, 99, 235, 0.1);
+  fill: rgba(37, 99, 235, 0.14);
 }
 
 .curve-path {
   fill: none;
   stroke: #2563eb;
-  stroke-width: 4;
+  stroke-width: 4.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 6px 12px rgba(37, 99, 235, 0.16));
+}
+
+.curve-guide {
+  stroke: rgba(148, 163, 184, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+
+.curve-baseline {
+  stroke: rgba(15, 23, 42, 0.28);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
 }
 
 .curve-point {
   fill: #2563eb;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 2;
+}
+
+.curve-axis-labels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.curve-axis-labels span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.curve-axis-labels span:nth-child(2) {
+  text-align: center;
+}
+
+.curve-axis-labels span:last-child {
+  text-align: right;
 }
 
 .analytics-dots {
@@ -1168,6 +1349,7 @@ tbody tr:last-child td {
   .summary-grid,
   .capital-stats,
   .calendar-summary,
+  .curve-topline,
   .analytics-grid,
   .two-col,
   .three-col,
@@ -1179,10 +1361,13 @@ tbody tr:last-child td {
   .day-detail-header,
   .table-tools,
   .form-tools,
-  .curve-header,
-  .chart-card {
+  .curve-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .chart-card {
+    grid-template-columns: 1fr;
   }
 
   .mobile-only {
@@ -1208,6 +1393,15 @@ tbody tr:last-child td {
   .calendar-header-tools {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .curve-copy-meta {
+    justify-items: start;
+  }
+
+  .curve-card-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .table-tools input {
@@ -1249,9 +1443,5 @@ tbody tr:last-child td {
 
   .history-body {
     height: 620px;
-  }
-
-  .chart-card {
-    grid-template-columns: 1fr;
   }
 }

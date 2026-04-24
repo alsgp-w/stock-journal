@@ -89,9 +89,16 @@ function cacheElements() {
     "donutCenterValue",
     "curveHeadline",
     "curveMeta",
+    "curveRange",
+    "curveStartCapital",
+    "curveNetProfit",
+    "curvePeakCapital",
+    "curveGuides",
+    "curveBaseline",
     "curvePath",
     "curveArea",
     "curvePoints",
+    "curveAxisLabels",
     "tradeTableBody",
     "searchInput",
     "mobileFormToggle",
@@ -487,8 +494,24 @@ function updateCalendarSummary(monthLogs) {
     : null;
   const average = entries.reduce((sum, [, value]) => sum + value, 0) / entries.length;
 
-  els.bestDayValue.textContent = best ? `${best[0].slice(8)}일 · ${formatMoney(best[1])}` : "";
-  els.worstDayValue.textContent = worst ? `${worst[0].slice(8)}일 · ${formatMoney(worst[1])}` : "";
+  if (best) {
+    els.bestDayValue.innerHTML = `
+      <span class="summary-split-date">${best[0].slice(8)}일</span>
+      <span class="summary-split-amount">${formatMoney(best[1])}</span>
+    `;
+  } else {
+    els.bestDayValue.textContent = "";
+  }
+
+  if (worst) {
+    els.worstDayValue.innerHTML = `
+      <span class="summary-split-date">${worst[0].slice(8)}일</span>
+      <span class="summary-split-amount">${formatMoney(worst[1])}</span>
+    `;
+  } else {
+    els.worstDayValue.textContent = "";
+  }
+
   els.avgDayValue.textContent = formatMoney(Math.round(average));
 }
 
@@ -559,7 +582,7 @@ function renderAnalytics() {
   const bestTicker = [...tickerMap.entries()].sort((a, b) => b[1] - a[1])[0];
   const bestStrategy = [...strategyMap.entries()].sort((a, b) => b[1] - a[1])[0];
 
-  els.bestTickerValue.textContent = bestTicker ? `${bestTicker[0]} · ${formatMoney(bestTicker[1])}` : "-";
+  els.bestTickerValue.textContent = bestTicker ? `${bestTicker[0]} ${formatMoney(bestTicker[1])}` : "-";
   els.bestStrategyValue.textContent = bestStrategy ? `${bestStrategy[0]} · ${bestStrategy[1]}건` : "-";
 
   renderDonutChart(wins.length, draws.length, losses.length);
@@ -590,10 +613,24 @@ function renderDonutChart(winCount, drawCount, lossCount) {
 function renderCurveChart() {
   if (!state.logs.length) {
     els.curveHeadline.textContent = "₩0";
-    els.curveMeta.textContent = "날짜 기준 총 자산 변화를 보여줍니다.";
+    els.curveMeta.textContent = "총 자산 변화 기준";
+    els.curveRange.textContent = "기간 · --.--.-- - --.--.--";
+    els.curveStartCapital.textContent = formatMoney(state.startingCapital);
+    els.curveNetProfit.textContent = "₩0";
+    els.curvePeakCapital.textContent = formatMoney(state.startingCapital);
+    els.curveGuides.innerHTML = "";
+    els.curveBaseline.setAttribute("x1", "0");
+    els.curveBaseline.setAttribute("x2", "0");
+    els.curveBaseline.setAttribute("y1", "0");
+    els.curveBaseline.setAttribute("y2", "0");
     els.curvePath.setAttribute("d", "");
     els.curveArea.setAttribute("d", "");
     els.curvePoints.innerHTML = "";
+    els.curveAxisLabels.innerHTML = `
+      <span>--.--</span>
+      <span>--.--</span>
+      <span>--.--</span>
+    `;
     return;
   }
 
@@ -635,14 +672,41 @@ function renderCurveChart() {
     .join(" ");
   const area = `${path} L ${points[points.length - 1].x.toFixed(2)} ${height - paddingY} L ${points[0].x.toFixed(2)} ${height - paddingY} Z`;
 
+  const baselineY = height - paddingY - ((state.startingCapital - minValue) / range) * (height - paddingY * 2);
+  const guides = [0, 0.5, 1]
+    .map((ratio) => {
+      const y = (paddingY + (height - paddingY * 2) * ratio).toFixed(2);
+      return `<line class="curve-guide" x1="${paddingX}" y1="${y}" x2="${width - paddingX}" y2="${y}"></line>`;
+    })
+    .join("");
+
+  els.curveGuides.innerHTML = guides;
+  els.curveBaseline.setAttribute("x1", `${paddingX}`);
+  els.curveBaseline.setAttribute("x2", `${width - paddingX}`);
+  els.curveBaseline.setAttribute("y1", `${baselineY.toFixed(2)}`);
+  els.curveBaseline.setAttribute("y2", `${baselineY.toFixed(2)}`);
   els.curvePath.setAttribute("d", path);
   els.curveArea.setAttribute("d", area);
   els.curvePoints.innerHTML = points
     .map((point) => `<circle class="curve-point" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="4"></circle>`)
     .join("");
 
+  const axisDates = [
+    byDate[0]?.date,
+    byDate[Math.floor((byDate.length - 1) / 2)]?.date,
+    byDate[byDate.length - 1]?.date
+  ].map((date) => formatShortDateWithYear(date));
+
+  els.curveAxisLabels.innerHTML = axisDates
+    .map((label) => `<span>${label}</span>`)
+    .join("");
+
   els.curveHeadline.textContent = formatMoney(values[values.length - 1]);
-  els.curveMeta.textContent = `${byDate[0].date}부터 ${byDate[byDate.length - 1].date}까지의 총 자산 변화`;
+  els.curveMeta.textContent = "총 자산 변화 기준";
+  els.curveRange.textContent = `기간 · ${formatShortDateWithYear(byDate[0].date)} - ${formatShortDateWithYear(byDate[byDate.length - 1].date)}`;
+  els.curveStartCapital.textContent = formatMoney(state.startingCapital);
+  els.curveNetProfit.textContent = formatMoney(values[values.length - 1] - state.startingCapital);
+  els.curvePeakCapital.textContent = formatMoney(Math.max(...values));
 }
 
 function setAnalyticsSlide(index, scroll = true) {
@@ -936,6 +1000,19 @@ function formatDateInput(date) {
 function formatDateKorean(dateString) {
   const date = new Date(`${dateString}T00:00:00`);
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+}
+
+function formatShortDate(dateString) {
+  const date = new Date(`${dateString}T00:00:00`);
+  return `${`${date.getMonth() + 1}`.padStart(2, "0")}.${`${date.getDate()}`.padStart(2, "0")}`;
+}
+
+function formatShortDateWithYear(dateString) {
+  const date = new Date(`${dateString}T00:00:00`);
+  const year = `${date.getFullYear()}`.slice(-2);
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}.${month}.${day}`;
 }
 
 function getYearMonthKey(date) {

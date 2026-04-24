@@ -119,15 +119,15 @@
         <aside class="workspace-side">
           <section class="review-panel" id="reviewPanel">
             <div class="calendar-summary side-summary">
-              <div>
+              <div class="review-stat-card">
                 <span>가장 많이 번 날</span>
                 <strong id="bestDayValue">없음</strong>
               </div>
-              <div>
+              <div class="review-stat-card">
                 <span>가장 크게 잃은 날</span>
                 <strong id="worstDayValue">없음</strong>
               </div>
-              <div>
+              <div class="review-stat-card">
                 <span>하루 평균 손익</span>
                 <strong id="avgDayValue">₩0</strong>
               </div>
@@ -366,19 +366,48 @@
 
             <section class="analytics-slide" data-slide="1">
               <div class="curve-header">
-                <div>
+                <div class="curve-copy">
                   <span>누적 수익 곡선</span>
                   <strong id="curveHeadline">₩0</strong>
                 </div>
-                <p id="curveMeta">날짜 기준 총 자산 변화를 보여줍니다.</p>
+                <div class="curve-copy-meta">
+                  <p id="curveMeta">총 자산 변화 기준</p>
+                  <p id="curveRange">기간 · --.-- - --.--</p>
+                </div>
+              </div>
+
+              <div class="curve-topline">
+                <article class="analytic-block curve-metric-card">
+                  <span>시작 시드</span>
+                  <strong id="curveStartCapital">₩0</strong>
+                </article>
+                <article class="analytic-block curve-metric-card">
+                  <span>누적 손익</span>
+                  <strong id="curveNetProfit">₩0</strong>
+                </article>
+                <article class="analytic-block curve-metric-card">
+                  <span>최고 자산</span>
+                  <strong id="curvePeakCapital">₩0</strong>
+                </article>
               </div>
 
               <div class="curve-card">
+                <div class="curve-card-head">
+                  <span class="curve-card-label">Equity Curve</span>
+                  <span class="curve-card-caption">날짜별 총 자산 흐름</span>
+                </div>
                 <svg viewBox="0 0 560 260" class="curve-chart" aria-label="누적 수익 곡선">
+                  <g id="curveGuides"></g>
+                  <line id="curveBaseline" class="curve-baseline" x1="0" y1="0" x2="0" y2="0"></line>
                   <path id="curveArea" class="curve-area"></path>
                   <path id="curvePath" class="curve-path"></path>
                   <g id="curvePoints"></g>
                 </svg>
+                <div class="curve-axis-labels" id="curveAxisLabels">
+                  <span>--.--</span>
+                  <span>--.--</span>
+                  <span>--.--</span>
+                </div>
               </div>
             </section>
           </div>
