@@ -793,8 +793,14 @@ textarea {
   width: 240px;
 }
 
+.history-body {
+  height: 430px;
+}
+
 .table-scroll {
+  height: 100%;
   overflow-x: auto;
+  overflow-y: auto;
 }
 
 .mobile-trade-list {
@@ -1053,10 +1059,15 @@ tbody tr:last-child td {
 
   .mobile-trade-list {
     display: grid;
-    margin-top: 16px;
+    height: 100%;
+    overflow-y: auto;
   }
 
   .mobile-card-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .history-body {
+    height: 620px;
   }
 }

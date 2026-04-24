@@ -360,28 +360,30 @@
 
           <input type="file" id="importFileInput" accept="application/json" hidden>
 
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>날짜</th>
-                  <th>종목</th>
-                  <th>유형</th>
-                  <th>전략</th>
-                  <th>손익</th>
-                  <th>수익률</th>
-                  <th>관리</th>
-                </tr>
-              </thead>
-              <tbody id="tradeTableBody">
-                <tr>
-                  <td colspan="7" class="empty-row">아직 저장된 거래가 없습니다.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="history-body">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>날짜</th>
+                    <th>종목</th>
+                    <th>유형</th>
+                    <th>전략</th>
+                    <th>손익</th>
+                    <th>수익률</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody id="tradeTableBody">
+                  <tr>
+                    <td colspan="7" class="empty-row">아직 저장된 거래가 없습니다.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div id="mobileTradeList" class="mobile-trade-list"></div>
+            <div id="mobileTradeList" class="mobile-trade-list"></div>
+          </div>
         </section>
       </section>
     </main>
