@@ -652,11 +652,18 @@ textarea {
   font-size: 0.82rem;
   line-height: 1.3;
   color: #0f172a;
+  width: 100%;
+  min-width: 0;
 }
 
 .money-stack {
   display: grid;
   gap: 4px;
+}
+
+.day-profit .money-stack {
+  width: 100%;
+  gap: 2px;
 }
 
 .money-line,
@@ -668,6 +675,9 @@ textarea {
 .money-line-small {
   font-size: 0.76rem;
   line-height: 1.25;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .day-count {

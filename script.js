@@ -1021,7 +1021,7 @@ function formatMoneyMap(moneyMap, options = {}) {
   const currencies = ["KRW", "USD"].filter((currency) => Number(moneyMap[currency] || 0) !== 0);
   const visibleCurrencies = currencies.length ? currencies : ["KRW"];
   const parts = visibleCurrencies.map((currency) => {
-    const prefix = compact || small ? `${currency} ` : "";
+    const prefix = compact ? `${currency} ` : "";
     return `<span class="${className}">${prefix}${formatMoney(moneyMap[currency] || 0, currency)}</span>`;
   });
   return compact || parts.length > 1 ? `<span class="money-stack">${parts.join("")}</span>` : parts[0];
